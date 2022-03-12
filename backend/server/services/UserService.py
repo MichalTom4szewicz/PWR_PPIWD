@@ -1,6 +1,7 @@
 import os
 import hashlib
 import logging
+import json
 
 from server.models.User import User
 
@@ -18,15 +19,45 @@ class UserService:
 
         return user
 
-    def findUserByEmail(self, email: str) -> User:
+    def createUserFromJSON(self, json_str: str):
+        user_json = json.loads(json_str)
+
+        user_json['password'] = self.__hash_and_salt(user_json['password'])
+
+        user = User.from_json(json.dumps(user_json))
+        user.save()
+
+        return user
+
+    def findByEmail(self, email: str) -> User:
         """This method returns a user object that has the given email. It returns None when no user is found"""
         return User.objects(email=email).first()
 
+    def findById(self, id: str) -> User:
+        return User.objects(id=id).first()
+
     def authenticate(self, email: str, password: str):
         """This method returns whether the authentication for given credentials was successful"""
-        user = self.findUserByEmail(email)
+        user = self.findByEmail(email)
 
         return self.__compare_passwords(password, user.password)
+
+    def updateUser(self, id: str, data: dict):
+        user = self.findById(id)
+
+        if 'email' in data:
+            user.email = data['email']
+
+        if 'firstName' in data:
+            user.firstName = data['firstName']
+
+        if 'lastName' in data:
+            user.lastName = data['lastName']
+
+        if 'password' in data:
+            user.password = self.__hash_and_salt(data['password'])
+
+        return user.save()
 
     def __hash_and_salt(self, password: str):
         salt = os.urandom(16)
