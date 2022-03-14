@@ -38,12 +38,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Chronometer;
+import android.widget.TextView;
 
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
@@ -54,6 +57,8 @@ import com.mbientlab.metawear.builder.RouteBuilder;
 import com.mbientlab.metawear.builder.RouteComponent;
 import com.mbientlab.metawear.data.Acceleration;
 import com.mbientlab.metawear.module.Accelerometer;
+
+import java.util.Timer;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -70,7 +75,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     private FragmentSettings settings;
 
     private Accelerometer accelerometer;
-
+    long timeWhenStopped = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,9 +108,18 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+
         view.findViewById(R.id.acc_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.acc_stop).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.acc_reset).setVisibility(View.VISIBLE);
+                Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
+                simpleChronometer.setBase(SystemClock.elapsedRealtime() + timeWhenStopped);
+                simpleChronometer.start(); // start a chronometer
+
                 accelerometer.acceleration().addRouteAsync(new RouteBuilder() {
                     @Override
                     public void configure(RouteComponent source) {
@@ -129,9 +143,31 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         view.findViewById(R.id.acc_stop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.acc_start).setVisibility(View.VISIBLE);
+                Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
+                timeWhenStopped = simpleChronometer.getBase() - SystemClock.elapsedRealtime();
+                simpleChronometer.stop(); // stop a chronometer
+
                 accelerometer.stop();
                 accelerometer.acceleration().stop();
                 metawear.tearDown();
+            }
+        });
+
+        view.findViewById(R.id.acc_reset).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.findViewById(R.id.acc_start).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.acc_stop).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.acc_reset).setVisibility(View.VISIBLE);
+                Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
+                simpleChronometer.setBase(SystemClock.elapsedRealtime());
+                simpleChronometer.start(); // start a chronometer
+
+//                accelerometer.stop();
+//                accelerometer.acceleration().stop();
+//                metawear.tearDown();
             }
         });
     }
