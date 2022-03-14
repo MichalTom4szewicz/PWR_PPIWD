@@ -18,8 +18,11 @@ pipenv install --dev
 ```
 
 ## Uruchamianie
-W zależności od środowiska (bash, cmd, powershell) musicie ustawić:
-* zmienne środowiskowe:
+W zależności od środowiska (bash, cmd, powershell) musicie:
+* uruchomić serwer MongoDB (docker z serwerem mongo i mongo-express):
+  * ``docker-compose up -d``
+* wejść do środowiska pipenv: ``pipenv shell``
+* ustawić zmienne środowiskowe:
   * FLASK_APP=server
 * wywołać: ``flask run``
 * serwer powinien nasłuchiwać na porcie HTTP 5000
