@@ -3,7 +3,7 @@ W tym katalogu znajduje się część backendowa projektu
 
 ## Założenia
 Serwer REST zrealizowany przy użyciu:
-* Python 3.10
+* Python 3.9
 * flask (nie narzucam, ale tylko flaska w Pythonie znam, więc jak ktoś ma inną propozycję, to jestem zainteresowany)
 
 Zależności zarządzane przy użyciu [pipenv](https://pipenv.pypa.io/en/latest/)
@@ -13,7 +13,7 @@ Zależności zarządzane przy użyciu [pipenv](https://pipenv.pypa.io/en/latest/
 # Do korzystania
 pipenv install
 
-# Do developmentu (dodaje np. autopep8)
+# Do developmentu i testów (dodaje np. autopep8)
 pipenv install --dev
 ```
 
