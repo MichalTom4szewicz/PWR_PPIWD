@@ -2,9 +2,15 @@ start_docker:
 	docker-compose up -d
 
 start_flask_dev:
-	-FLASK_ENVIRONMENT=development ./start.sh
+	FLASK_ENVIRONMENT=development ./start.sh
 
 start_dev : start_docker start_flask_dev
+
+start_swagger:
+	docker-compose -f ./swagger/docker-compose.yaml up -d
+
+stop_swagger:
+	docker-compose -f ./swagger/docker-compose.yaml down
 
 stop_docker:
 	docker-compose stop

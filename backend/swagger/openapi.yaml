@@ -1,0 +1,158 @@
+openapi: 3.0.0
+info:
+  title: API projektu PPiWD
+  version: 0.0.1
+
+servers:
+  - url: http://localhost:5000
+    description: Serwer developerski
+  - url: http://ppiwd.arturb.xyz:5000
+    description: Serwer prawie produkcyjny
+
+paths:
+  /training/measurement/{activityName}:
+    post:
+      summary: Odbiera dane w formacie CSV i zapisuje je w datasetcie jako przykład dla klasy {activityName}
+      parameters:
+        - name: activityName
+          in: path
+          required: true
+          description: Nazwa klasy przesyłanego pomiaru
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+              example: |
+                12, 12, 12
+                6, 6, 6
+
+      responses:
+        '200':
+          description: "Pomyślnie zapisano pomiar"
+        '400':
+          description: "Wystąpił błąd"
+
+  /training/download:
+    get:
+      summary: "Tworzy archiwum tar.gz z bieżącą zawartością datasetu odsyła je w odpowiedzi"
+      responses:
+        '200':
+          description: "Pomyślnie utworzono archiwum"
+          content:
+            application/gzip:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: "Wystąpił błąd"
+
+  /auth/register:
+    post:
+      summary: Tworzy nowego użytkownika
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterData'
+      responses:
+        '201':
+          description: "Pomyślnie utworzono konto użytkownika"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: "Some data is invalid"
+        '409':
+          description: "User with this email is already registered"
+
+  /auth/login:
+    post:
+      summary: Logowanie
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginData'
+      responses:
+        '200':
+          description: "Zalogowano pomyślnie"
+          content:
+            application/json:
+              schema:
+                properties:
+                  accessToken:
+                    type: string
+                    example: "A JWT"
+        '400':
+          description: Podano złe dane logowania
+
+  /auth/me:
+    get:
+      summary: Zwraca informacje o użytkowniku, jeśli podano JWT
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Poprawny JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Niepoprawny albo brak JWT
+
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      in: header
+      name: Authorization
+  schemas:
+    RegisterData:
+      properties:
+        email:
+          type: string
+          example: "john.doe@example.com"
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        password:
+          type: string
+          example: "StrongP@ssword"
+    LoginData:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    User:
+      properties:
+        id:
+          type: string
+          example: "1234abcdef"
+        email:
+          type: string
+          example: "john.doe@example.com"
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
