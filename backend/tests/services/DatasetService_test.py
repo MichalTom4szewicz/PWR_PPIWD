@@ -6,6 +6,7 @@ import os
 import tarfile
 
 from server.services.DatasetService import DatasetService
+from server.config import config
 
 
 class DatasetService_test(unittest.TestCase):
@@ -83,10 +84,20 @@ class DatasetService_test(unittest.TestCase):
         with tarfile.open(backup_archive, "r:gz") as t:
             t.extractall(self.tmpExtractDir)
 
-        print(self.tmpExtractDir)
-
         with open(os.path.join(self.tmpExtractDir, "activity_one", "1.csv"), 'r') as f:
             self.assertEqual(f.read(), "some\ttsv\tdata1\n")
 
         with open(os.path.join(self.tmpExtractDir, "activity_two", "1.csv"), 'r') as f:
             self.assertEqual(f.read(), "some\ttsv\tdata2\n")
+
+    def test_defaultInstanceConfiguration(self):
+        defaultInstance = DatasetService.getDefaultInstance()
+
+        self.assertEqual(defaultInstance.dataset_dir,
+                         config.training_dataset.dataset_dir)
+        self.assertEqual(defaultInstance.backup_dir,
+                         config.training_dataset.backup_dir)
+
+
+if __name__ == "__main__":
+    unittest.main()

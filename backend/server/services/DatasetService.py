@@ -1,11 +1,21 @@
 import logging
 import os
 import tarfile
+from server.config import config
 
 from datetime import datetime
 
 
 class DatasetService:
+
+    __defaultInstance = None
+
+    @staticmethod
+    def getDefaultInstance() -> 'DatasetService':
+        if not DatasetService.__defaultInstance:
+            DatasetService.__defaultInstance = DatasetService(
+                config.training_dataset.dataset_dir, config.training_dataset.backup_dir)
+        return DatasetService.__defaultInstance
 
     def __init__(self, dataset_dir: str, backup_dir: str):
         self.dataset_dir = dataset_dir
