@@ -40,42 +40,140 @@
     tools:context="com.mbientlab.metawear.tutorial.starter.DeviceSetupActivityFragment"
     tools:showIn="@layout/activity_device_setup">
 
-    <Button
-        android:id="@+id/acc_start"
+    <TextView
+        android:id="@+id/pickActivityText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="Pick Activity"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/jumpingJacksText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pickActivityText"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="30dp"
+        android:text="jumping jacks"
+        android:textSize="20sp" />
+
+    <Switch
+        android:id="@+id/jumpingJacksSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pickActivityText"
         android:layout_alignParentEnd="true"
-        android:text="Start" />
+        android:layout_marginEnd="50dp"
+        android:layout_marginTop="30dp" />
+
+    <TextView
+        android:id="@+id/squatsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/jumpingJacksText"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="30dp"
+        android:text="squats"
+        android:textSize="20sp" />
+
+    <Switch
+        android:id="@+id/squatsSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/jumpingJacksSwitch"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="50dp"
+        android:layout_marginTop="30dp" />
+
+    <TextView
+        android:id="@+id/runningText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/squatsText"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="30dp"
+        android:text="running"
+        android:textSize="20sp" />
+
+    <Switch
+        android:id="@+id/runningSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/squatsSwitch"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="50dp"
+        android:layout_marginTop="30dp" />
+
+    <TextView
+        android:id="@+id/boxingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/runningText"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="30dp"
+        android:text="boxing"
+        android:textSize="20sp" />
+
+    <Switch
+        android:id="@+id/boxingSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/runningSwitch"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="50dp"
+        android:layout_marginTop="30dp" />
 
     <Button
-        android:id="@+id/acc_stop"
+        android:id="@+id/geo_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
+        android:layout_below="@+id/boxingSwitch"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="18dp"
+        android:text="Start"
+        android:visibility="invisible"/>
+
+    <Button
+        android:id="@+id/geo_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/geo_start"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="18dp"
         android:text="Stop"
-        android:visibility="invisible" />
-<!--    android:layout_below="@+id/acc_start"-->
+        android:visibility="invisible"/>
 
-    <Button
-        android:id="@+id/acc_reset"
+    <TextView
+        android:id="@+id/timeText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:text="Reset"
-        android:visibility="invisible"
-        android:layout_below="@+id/acc_start"
-    />
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/geo_stop"
+        android:layout_marginTop="3dp"
+        android:text="time:"
+        android:textSize="20sp"
+        android:visibility="invisible"/>
 
     <Chronometer
         android:id="@+id/simpleChronometer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:textSize="50sp" />
-
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/timeText"
+        android:layout_marginTop="3dp"
+        android:textSize="30sp"
+        android:visibility="invisible"/>
 
 </RelativeLayout>

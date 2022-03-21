@@ -35,7 +35,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -44,15 +43,16 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.android.BtleService;
+import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.tutorial.starter.DeviceSetupActivityFragment.FragmentSettings;
 
 import bolts.Continuation;
-import bolts.Task;
 
 import static android.content.DialogInterface.*;
 
@@ -128,10 +128,26 @@ public class DeviceSetupActivity extends AppCompatActivity implements ServiceCon
         return true;
     }
 
+    private Led ledModule;
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.action_disconnect:
+                Log.i("MetaWear", "Disconnected");
+                ledModule = metawear.getModule(Led.class);
+                ledModule.stop(true);
+                Log.i("MetaWear", "Turn off LED");
+                ledModule.editPattern(Led.Color.RED)
+                        .riseTime((short) 0)
+                        .pulseDuration((short) 1000)
+                        .repeatCount((byte) 2)
+                        .highTime((short) 500)
+                        .highIntensity((byte) 16)
+                        .lowIntensity((byte) 16)
+                        .commit();
+                ledModule.play();
+
                 metawear.disconnectAsync();
                 finish();
                 return true;
@@ -171,7 +187,6 @@ public class DeviceSetupActivity extends AppCompatActivity implements ServiceCon
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-
     }
 
     @Override
