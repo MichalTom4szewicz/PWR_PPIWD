@@ -37,8 +37,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,7 +48,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Chronometer;
-import android.widget.TextView;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
@@ -55,13 +58,21 @@ import com.mbientlab.metawear.Subscriber;
 import com.mbientlab.metawear.android.BtleService;
 import com.mbientlab.metawear.builder.RouteBuilder;
 import com.mbientlab.metawear.builder.RouteComponent;
-import com.mbientlab.metawear.data.Acceleration;
-import com.mbientlab.metawear.module.Accelerometer;
-
-import java.util.Timer;
+import com.mbientlab.metawear.data.AngularVelocity;
+import com.mbientlab.metawear.module.Gyro;
+import com.mbientlab.metawear.module.Led;
 
 import bolts.Continuation;
 import bolts.Task;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
+import java.lang.Math;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -74,8 +85,29 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     private MetaWearBoard metawear = null;
     private FragmentSettings settings;
 
-    private Accelerometer accelerometer;
-    long timeWhenStopped = 0;
+    private Gyro gyro;
+    private Led ledModule;
+
+    Context ctx;
+
+    LocalDateTime time;
+
+    double gyro_raw_x;
+    double gyro_raw_y;
+    double gyro_raw_z;
+
+    String gyro_string_x;
+    String gyro_string_y;
+    String gyro_string_z;
+
+    String activityType;
+
+    String csv_entry = "activity_type" + ","  +
+                        "time(sec)" + "," +
+                        "gyroscope_x(deg/sec)" + "," +
+                        "gyroscope_y(deg/sec)" + "," +
+                        "gyroscope_z(deg/sec)" + "\n";
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,6 +120,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
         settings= (FragmentSettings) owner;
         owner.getApplicationContext().bindService(new Intent(owner, BtleService.class), this, Context.BIND_AUTO_CREATE);
+        ctx = owner.getApplicationContext();
     }
 
     @Override
@@ -104,70 +137,213 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         return inflater.inflate(R.layout.fragment_device_setup, container, false);
     }
 
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Switch jumping_jacks_switch = (Switch) view.findViewById(R.id.jumpingJacksSwitch);
+        Switch squats_switch = (Switch) view.findViewById(R.id.squatsSwitch);
+        Switch running_switch = (Switch) view.findViewById(R.id.runningSwitch);
+        Switch boxing_switch = (Switch) view.findViewById(R.id.boxingSwitch);
 
+        jumping_jacks_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Switch State=", "jumping jacks switch " + isChecked);
+                if (isChecked) {
+                    activityType="jumping_jacks";
+                    squats_switch.setChecked(false);
+                    running_switch.setChecked(false);
+                    boxing_switch.setChecked(false);
+                    view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                } else {
+                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
+                }
+            }
+        });
 
-        view.findViewById(R.id.acc_start).setOnClickListener(new View.OnClickListener() {
+        squats_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Switch State=", "squats switch " + isChecked);
+                if (isChecked) {
+                    activityType="squats";
+                    jumping_jacks_switch.setChecked(false);
+                    running_switch.setChecked(false);
+                    boxing_switch.setChecked(false);
+                    view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                } else {
+                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        running_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Switch State=", "running switch" + isChecked);
+                if (isChecked) {
+                    activityType="running";
+                    jumping_jacks_switch.setChecked(false);
+                    squats_switch.setChecked(false);
+                    boxing_switch.setChecked(false);
+                    view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                } else {
+                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        boxing_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Switch State=", "boxing switch" + isChecked);
+                if (isChecked) {
+                    activityType="boxing";
+                    jumping_jacks_switch.setChecked(false);
+                    squats_switch.setChecked(false);
+                    running_switch.setChecked(false);
+                    view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                } else {
+                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        view.findViewById(R.id.geo_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.acc_stop).setVisibility(View.VISIBLE);
-                view.findViewById(R.id.acc_reset).setVisibility(View.VISIBLE);
+                Log.i("MetaWear", "Connected");
+                ledModule = metawear.getModule(Led.class);
+
+                ledModule.stop(true);
+                Log.i("MetaWear", "Starting activity");
+                ledModule.editPattern(Led.Color.GREEN)
+                        .riseTime((short) 0)
+                        .pulseDuration((short) 1000)
+                        .repeatCount((byte) 2)
+                        .highTime((short) 500)
+                        .highIntensity((byte) 16)
+                        .lowIntensity((byte) 16)
+                        .commit();
+                ledModule.play();
+
+                view.findViewById(R.id.timeText).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.simpleChronometer).setVisibility(View.VISIBLE);
+
+                jumping_jacks_switch.setClickable(false);
+                squats_switch.setClickable(false);
+                running_switch.setClickable(false);
+                boxing_switch.setClickable(false);
+
                 Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
-                simpleChronometer.setBase(SystemClock.elapsedRealtime() + timeWhenStopped);
+                simpleChronometer.setBase(SystemClock.elapsedRealtime());
                 simpleChronometer.start(); // start a chronometer
 
-                accelerometer.acceleration().addRouteAsync(new RouteBuilder() {
+                gyro.angularVelocity().addRouteAsync(new RouteBuilder() {
                     @Override
                     public void configure(RouteComponent source) {
                         source.stream(new Subscriber() {
+                            @RequiresApi(api = Build.VERSION_CODES.O)
                             @Override
                             public void apply(Data data, Object... env) {
-                                Log.i("MainActivity", data.value(Acceleration.class).toString());
+                                Log.i("MainActivity", data.value(AngularVelocity.class).toString());
+
+                                // Read Gyro and Prepare for writing to CSV
+                                gyro_raw_x = data.value(AngularVelocity.class).x();
+                                gyro_raw_y = data.value(AngularVelocity.class).y();
+                                gyro_raw_z = data.value(AngularVelocity.class).z();
+                                gyro_raw_x = Math.toRadians(gyro_raw_x);
+                                gyro_raw_y = Math.toRadians(gyro_raw_y);
+                                gyro_raw_z = Math.toRadians(gyro_raw_z);
+
+                                gyro_string_x = Double.toString(gyro_raw_x);
+                                gyro_string_y = Double.toString(gyro_raw_y);
+                                gyro_string_z = Double.toString(gyro_raw_z);
+
+                                csv_entry = csv_entry +
+                                            activityType + "," +
+                                            time.now().toString() + "," +
+                                            gyro_string_x + "," +
+                                            gyro_string_y + "," +
+                                            gyro_string_z + "\n";
                             }
+
                         });
                     }
                 }).continueWith(new Continuation<Route, Void>() {
                     @Override
                     public Void then(Task<Route> task) throws Exception {
-                        accelerometer.acceleration().start();
-                        accelerometer.start();
+                        gyro.angularVelocity().start();
+                        gyro.start();
+
                         return null;
                     }
                 });
             }
         });
-        view.findViewById(R.id.acc_stop).setOnClickListener(new View.OnClickListener() {
+
+        view.findViewById(R.id.geo_stop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.acc_start).setVisibility(View.VISIBLE);
-                Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
-                timeWhenStopped = simpleChronometer.getBase() - SystemClock.elapsedRealtime();
-                simpleChronometer.stop(); // stop a chronometer
 
-                accelerometer.stop();
-                accelerometer.acceleration().stop();
-                metawear.tearDown();
-            }
-        });
+                view.findViewById(R.id.timeText).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.simpleChronometer).setVisibility(View.INVISIBLE);
 
-        view.findViewById(R.id.acc_reset).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                view.findViewById(R.id.acc_start).setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.acc_stop).setVisibility(View.VISIBLE);
-                view.findViewById(R.id.acc_reset).setVisibility(View.VISIBLE);
                 Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
                 simpleChronometer.setBase(SystemClock.elapsedRealtime());
                 simpleChronometer.start(); // start a chronometer
 
-//                accelerometer.stop();
-//                accelerometer.acceleration().stop();
-//                metawear.tearDown();
+                Log.i("MetaWear", "Connected");
+                ledModule = metawear.getModule(Led.class);
+                ledModule.stop(true);
+                Log.i("MetaWear", "Ending activity");
+                ledModule.editPattern(Led.Color.GREEN)
+                        .riseTime((short) 0)
+                        .pulseDuration((short) 1000)
+                        .repeatCount((byte) 2)
+                        .highTime((short) 500)
+                        .highIntensity((byte) 16)
+                        .lowIntensity((byte) 16)
+                        .commit();
+                ledModule.play();
+
+                jumping_jacks_switch.setClickable(true);
+                squats_switch.setClickable(true);
+                running_switch.setClickable(true);
+                boxing_switch.setClickable(true);
+
+                String baseDir = "/storage/emulated/0/Download";
+                String uniqueString = UUID.randomUUID().toString();
+                String fileName = "AnalysisData" + uniqueString + ".csv";
+                String filePath = baseDir + File.separator + fileName;
+                File f = new File(filePath);
+
+                gyro.stop();
+                gyro.angularVelocity().stop();
+
+                try {
+                    OutputStream os = new FileOutputStream(f);
+                    os.write(csv_entry.getBytes());
+                    os.close();
+                    Log.i("MainActivity", "File is created!");
+                } catch (IOException e) {
+                    Log.i("MainActivity", "File NOT created ...!");
+                    e.printStackTrace();
+                }
+
+                csv_entry = "activity_type" + ","  +
+                        "time(sec)" + "," +
+                        "gyroscope_x(deg/sec)" + "," +
+                        "gyroscope_y(deg/sec)" + "," +
+                        "gyroscope_z(deg/sec)" + "\n";
+
+                metawear.tearDown();
             }
         });
     }
@@ -176,15 +352,30 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     public void onServiceConnected(ComponentName name, IBinder service) {
         metawear = ((BtleService.LocalBinder) service).getMetaWearBoard(settings.getBtDevice());
 
-        accelerometer= metawear.getModule(Accelerometer.class);
-        accelerometer.configure()
-                .odr(25f)       // Set sampling frequency to 25Hz, or closest valid ODR
+        Log.i("MetaWear", "Connected");
+        ledModule = metawear.getModule(Led.class);
+        ledModule.stop(true);
+        Log.i("MetaWear", "Turn on BLUE LED");
+        ledModule.editPattern(Led.Color.BLUE)
+                .riseTime((short) 0)
+                .pulseDuration((short) 1000)
+                .repeatCount((byte) 2)
+                .highTime((short) 500)
+                .highIntensity((byte) 16)
+                .lowIntensity((byte) 16)
+                .commit();
+        ledModule.play();
+
+
+        gyro = metawear.getModule(Gyro.class);
+        gyro.configure()
+                .odr(Gyro.OutputDataRate.ODR_50_HZ)
+                .range(Gyro.Range.FSR_2000)
                 .commit();
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-
     }
 
     /**

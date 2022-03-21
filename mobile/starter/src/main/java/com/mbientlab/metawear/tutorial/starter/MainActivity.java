@@ -9,14 +9,15 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.mbientlab.bletoolbox.scanner.BleScannerFragment;
 import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.android.BtleService;
+import com.mbientlab.metawear.module.Led;
 
 import java.util.UUID;
 
-import bolts.Continuation;
 import bolts.Task;
 
 public class MainActivity extends AppCompatActivity implements BleScannerFragment.ScannerCommunicationBus, ServiceConnection {
@@ -24,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements BleScannerFragmen
 
     private BtleService.LocalBinder serviceBinder;
     private MetaWearBoard metawear;
-
+    private Led ledModule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,12 @@ public class MainActivity extends AppCompatActivity implements BleScannerFragmen
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        Log.i("MetaWear", "Disconnected");
+        ledModule = metawear.getModule(Led.class);
+
+        Log.i("MetaWear", "Turn off LED");
+        ledModule.stop(true);
 
         ///< Unbind the service when the activity is destroyed
         getApplicationContext().unbindService(this);
