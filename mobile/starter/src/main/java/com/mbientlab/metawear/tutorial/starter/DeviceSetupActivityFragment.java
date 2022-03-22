@@ -100,9 +100,11 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     String gyro_string_y;
     String gyro_string_z;
 
-    String activityType;
+    String activityType="";
+    String repetitions="";
 
-    String csv_entry = "activity_type" + ","  +
+    String csv_entry = "activity_type" + "," +
+                        "repetitions" + "," +
                         "time(sec)" + "," +
                         "gyroscope_x(deg/sec)" + "," +
                         "gyroscope_y(deg/sec)" + "," +
@@ -147,17 +149,25 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         Switch running_switch = (Switch) view.findViewById(R.id.runningSwitch);
         Switch boxing_switch = (Switch) view.findViewById(R.id.boxingSwitch);
 
+        Switch repeat5_switch = (Switch) view.findViewById(R.id.repeat5Switch);
+        Switch repeat10_switch = (Switch) view.findViewById(R.id.repeat10Switch);
+        Switch repeat15_switch = (Switch) view.findViewById(R.id.repeat15Switch);
+        Switch repeat20_switch = (Switch) view.findViewById(R.id.repeat20Switch);
+
         jumping_jacks_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.i("Switch State=", "jumping jacks switch " + isChecked);
                 if (isChecked) {
-                    activityType="jumping_jacks";
                     squats_switch.setChecked(false);
                     running_switch.setChecked(false);
                     boxing_switch.setChecked(false);
-                    view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    activityType="jumping_jacks";
+                    if (repetitions != ""){
+                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    }
                 } else {
+                    activityType="";
                     view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
                     view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
                 }
@@ -168,13 +178,16 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.i("Switch State=", "squats switch " + isChecked);
                 if (isChecked) {
-                    activityType="squats";
                     jumping_jacks_switch.setChecked(false);
                     running_switch.setChecked(false);
                     boxing_switch.setChecked(false);
-                    view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    activityType="squats";
+                    if (repetitions != ""){
+                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    }
                 } else {
+                    activityType="";
                     view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
                     view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
                 }
@@ -185,13 +198,16 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.i("Switch State=", "running switch" + isChecked);
                 if (isChecked) {
-                    activityType="running";
                     jumping_jacks_switch.setChecked(false);
                     squats_switch.setChecked(false);
                     boxing_switch.setChecked(false);
-                    view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    activityType="running";
+                    if (repetitions != ""){
+                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    }
                 } else {
+                    activityType="";
                     view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
                     view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
                 }
@@ -202,13 +218,96 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.i("Switch State=", "boxing switch" + isChecked);
                 if (isChecked) {
-                    activityType="boxing";
                     jumping_jacks_switch.setChecked(false);
                     squats_switch.setChecked(false);
                     running_switch.setChecked(false);
-                    view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    activityType="boxing";
+                    if (repetitions != ""){
+                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    }
                 } else {
+                    activityType="";
+                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        repeat5_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Switch State=", "jumping jacks switch " + isChecked);
+                if (isChecked) {
+                    repeat10_switch.setChecked(false);
+                    repeat15_switch.setChecked(false);
+                    repeat20_switch.setChecked(false);
+                    repetitions="5";
+                    if (activityType != "") {
+                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    repetitions="";
+                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        repeat10_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Switch State=", "jumping jacks switch " + isChecked);
+                if (isChecked) {
+                    repeat5_switch.setChecked(false);
+                    repeat15_switch.setChecked(false);
+                    repeat20_switch.setChecked(false);
+                    repetitions="10";
+                    if (activityType != "") {
+                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    repetitions="";
+                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        repeat15_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Switch State=", "jumping jacks switch " + isChecked);
+                if (isChecked) {
+                    repeat5_switch.setChecked(false);
+                    repeat10_switch.setChecked(false);
+                    repeat20_switch.setChecked(false);
+                    repetitions="15";
+                    if (activityType != "") {
+                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    repetitions="";
+                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
+                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        repeat20_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Switch State=", "jumping jacks switch " + isChecked);
+                if (isChecked) {
+                    repeat5_switch.setChecked(false);
+                    repeat10_switch.setChecked(false);
+                    repeat15_switch.setChecked(false);
+                    repetitions="20";
+                    if (activityType != "") {
+                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    repetitions="";
                     view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
                     view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
                 }
@@ -241,6 +340,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                 running_switch.setClickable(false);
                 boxing_switch.setClickable(false);
 
+                repeat5_switch.setClickable(false);
+                repeat10_switch.setClickable(false);
+                repeat15_switch.setClickable(false);
+                repeat20_switch.setClickable(false);
+
+                view.findViewById(R.id.geo_start).setClickable(false);
+
                 Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
                 simpleChronometer.setBase(SystemClock.elapsedRealtime());
                 simpleChronometer.start(); // start a chronometer
@@ -268,6 +374,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
                                 csv_entry = csv_entry +
                                             activityType + "," +
+                                            repetitions + "," +
                                             time.now().toString() + "," +
                                             gyro_string_x + "," +
                                             gyro_string_y + "," +
@@ -318,6 +425,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                 running_switch.setClickable(true);
                 boxing_switch.setClickable(true);
 
+                repeat5_switch.setClickable(true);
+                repeat10_switch.setClickable(true);
+                repeat15_switch.setClickable(true);
+                repeat20_switch.setClickable(true);
+
+                view.findViewById(R.id.geo_start).setClickable(true);
+
                 String baseDir = "/storage/emulated/0/Download";
                 String uniqueString = UUID.randomUUID().toString();
                 String fileName = "AnalysisData" + uniqueString + ".csv";
@@ -337,7 +451,8 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     e.printStackTrace();
                 }
 
-                csv_entry = "activity_type" + ","  +
+                csv_entry = "activity_type" + "," +
+                        "repetitions" + "," +
                         "time(sec)" + "," +
                         "gyroscope_x(deg/sec)" + "," +
                         "gyroscope_y(deg/sec)" + "," +
