@@ -3,10 +3,11 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_mongoengine import MongoEngine
+from flask_restful import Api, Resource, reqparse
 from server.services.UserService import UserService
 
 from server.models.User import User
-
+from server.blueprints.Training import Training
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -16,5 +17,7 @@ def create_app():
         'db': 'ppiwd'
     }
     MongoEngine(app)
+
+    app.register_blueprint(Training)
 
     return app

@@ -8,6 +8,7 @@ flask = "*"
 flask-cors = "*"
 flask-mongoengine = "*"
 python-dotenv = "*"
+flask-restful = "*"
 
 [dev-packages]
 autopep8 = "*"
