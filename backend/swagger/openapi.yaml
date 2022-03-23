@@ -23,13 +23,13 @@ paths:
       requestBody:
         required: true
         content:
-          text/csv:
+          multipart/form-data:
             schema:
-              type: string
-              example: |
-                12, 12, 12
-                6, 6, 6
-
+              type: object
+              properties:
+                measurements:
+                  type: string
+                  format: binary
       responses:
         '200':
           description: "Pomyślnie zapisano pomiar"
