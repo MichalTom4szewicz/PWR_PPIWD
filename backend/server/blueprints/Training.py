@@ -1,4 +1,6 @@
-from flask import Blueprint, Response, request, jsonify
+import logging
+import os
+from flask import Blueprint, Response, request, jsonify, send_file
 from server.services.DatasetService import DatasetService
 
 Training = Blueprint('training', __name__)
@@ -19,3 +21,14 @@ def save_training_measurements(activity):
     dataset_service.saveMeasurement(activity, csv_data)
     res = {'message': 'CSV/TSV uploaded'}
     return res, 200
+
+
+@Training.route('/training/download', methods=['GET'])
+def download_training_dataset():
+    try:
+        path_to_archive = os.path.join(
+            os.getcwd(), dataset_service.exportTarGZ())
+        return send_file(path_to_archive, as_attachment=True)
+    except Exception as e:
+        logging.error(e)
+        return {'errorMessage': 'Error during exporting the dataset'}, 500

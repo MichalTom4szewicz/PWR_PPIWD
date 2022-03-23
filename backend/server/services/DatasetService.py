@@ -35,6 +35,8 @@ class DatasetService:
         time_str = self.__getCurrentTimeString()
         tar_gz_path = os.path.join(self.backup_dir, f"train_{time_str}.tar.gz")
 
+        self.__createDirectoryIfNotExists(self.backup_dir)
+
         with tarfile.open(tar_gz_path, "w:gz") as t:
             for child in os.listdir(self.dataset_dir):
                 child_path = os.path.join(self.dataset_dir, child)
