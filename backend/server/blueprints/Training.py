@@ -26,8 +26,9 @@ def save_training_measurements(activity):
 @Training.route('/training/download', methods=['GET'])
 def download_training_dataset():
     try:
-        path_to_archive = os.path.join(
-            os.getcwd(), dataset_service.exportTarGZ())
+        path_to_archive = dataset_service.exportTarGZ()
+        if not path_to_archive.startswith("/"):
+            path_to_archive = os.path.join(os.getcwd(), path_to_archive)
         return send_file(path_to_archive, as_attachment=True)
     except Exception as e:
         logging.error(e)
