@@ -37,6 +37,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -70,7 +71,14 @@ import java.io.IOException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.Math;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -110,6 +118,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                         "gyroscope_y(deg/sec)" + "," +
                         "gyroscope_z(deg/sec)" + "\n";
 
+    long timeWhenPaused = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -153,6 +162,8 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         Switch repeat10_switch = (Switch) view.findViewById(R.id.repeat10Switch);
         Switch repeat15_switch = (Switch) view.findViewById(R.id.repeat15Switch);
         Switch repeat20_switch = (Switch) view.findViewById(R.id.repeat20Switch);
+
+        Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer);
 
         jumping_jacks_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -317,6 +328,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         view.findViewById(R.id.geo_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.geo_pause).setVisibility(View.VISIBLE);
+
+                view.findViewById(R.id.geo_stop).setEnabled(true);
+
+                simpleChronometer.setBase(SystemClock.elapsedRealtime());
+
                 Log.i("MetaWear", "Connected");
                 ledModule = metawear.getModule(Led.class);
 
@@ -345,10 +363,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                 repeat15_switch.setClickable(false);
                 repeat20_switch.setClickable(false);
 
-                view.findViewById(R.id.geo_start).setClickable(false);
 
-                Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
-                simpleChronometer.setBase(SystemClock.elapsedRealtime());
                 simpleChronometer.start(); // start a chronometer
 
                 gyro.angularVelocity().addRouteAsync(new RouteBuilder() {
@@ -395,16 +410,49 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             }
         });
 
+        view.findViewById(R.id.geo_pause).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.findViewById(R.id.geo_resume).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.geo_pause).setVisibility(View.INVISIBLE);
+
+                gyro.stop();
+                gyro.angularVelocity().stop();
+                Log.i("MetaWear", "Pause activity");
+
+                timeWhenPaused = simpleChronometer.getBase() - SystemClock.elapsedRealtime();
+                simpleChronometer.stop();
+            }
+        });
+
+        view.findViewById(R.id.geo_resume).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.findViewById(R.id.geo_pause).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.geo_resume).setVisibility(View.INVISIBLE);
+
+                gyro.start();
+                gyro.angularVelocity().start();
+                Log.i("MetaWear", "Resume activity");
+
+                simpleChronometer.setBase(SystemClock.elapsedRealtime() + timeWhenPaused);
+                simpleChronometer.start();
+            }
+        });
+
         view.findViewById(R.id.geo_stop).setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
 
+                view.findViewById(R.id.geo_pause).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.geo_resume).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
                 view.findViewById(R.id.timeText).setVisibility(View.INVISIBLE);
                 view.findViewById(R.id.simpleChronometer).setVisibility(View.INVISIBLE);
 
-                Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
-                simpleChronometer.setBase(SystemClock.elapsedRealtime());
-                simpleChronometer.start(); // start a chronometer
+                simpleChronometer.stop();
+                timeWhenPaused = 0;
 
                 Log.i("MetaWear", "Connected");
                 ledModule = metawear.getModule(Led.class);
@@ -446,6 +494,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     os.write(csv_entry.getBytes());
                     os.close();
                     Log.i("MainActivity", "File is created!");
+                    sendFile(filePath);
                 } catch (IOException e) {
                     Log.i("MainActivity", "File NOT created ...!");
                     e.printStackTrace();
@@ -493,8 +542,87 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     public void onServiceDisconnected(ComponentName name) {
     }
 
-    /**
-     * Called when the app has reconnected to the board
-     */
+    public void sendFile(String filePath) {
+        File F = new File(filePath);
+        if (F == null) {
+            Log.i("MetaWear", "File not found");
+            return;
+        }
+        FileUploadParams params = new FileUploadParams(F,activityType);
+        new FileUpload().execute(params);
+    }
+
     public void reconnected() { }
+}
+class FileUpload extends AsyncTask<FileUploadParams, Void, Void> {
+
+
+    @Override
+    protected void onPreExecute(){
+        super.onPreExecute();
+        Log.i("MetaWear", "Starting Background Task");
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    protected Void doInBackground(FileUploadParams... fileUploadParams) {
+        String url = "https://ppiwd.arturb.xyz:5000/training/measurement/" + fileUploadParams[0].activityType;
+        String charset = "UTF-8";
+        File file = fileUploadParams[0].file;
+        String boundary = Long.toHexString(System.currentTimeMillis());
+        String CRLF = "\r\n";
+
+        URLConnection connection = null;
+        try {
+            connection = new URL(url).openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+        try (
+                OutputStream output = connection.getOutputStream();
+                PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, charset), true);
+        ) {
+            // Send normal param.
+            writer.append("--" + boundary).append(CRLF);
+            writer.append("Content-Disposition: form-data; name=\"param\"").append(CRLF);
+            writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF);
+
+            // Send text file.
+            writer.append("--" + boundary).append(CRLF);
+            writer.append("Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getName() + "\"").append(CRLF);
+            writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF);
+            writer.append(CRLF).flush();
+            Files.copy(textFile.toPath(), output);
+            output.flush();
+            writer.append(CRLF).flush();
+
+            writer.append("--" + boundary + "--").append(CRLF).flush();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int responseCode = 0;
+        try {
+            responseCode = ((HttpURLConnection) connection).getResponseCode();
+            Log.i("MetaWear", String.valueOf(responseCode));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
+
+class FileUploadParams {
+    File file;
+    String activityType;
+
+    FileUploadParams(File file, String activityType) {
+        this.file = file;
+        this.activityType = activityType;
+    }
 }
