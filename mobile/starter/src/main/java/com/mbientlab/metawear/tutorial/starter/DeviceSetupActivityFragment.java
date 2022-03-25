@@ -66,19 +66,21 @@ import com.mbientlab.metawear.module.Led;
 import bolts.Continuation;
 import bolts.Task;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.lang.Math;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -566,50 +568,68 @@ class FileUpload extends AsyncTask<FileUploadParams, Void, Void> {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected Void doInBackground(FileUploadParams... fileUploadParams) {
-        String url = "https://ppiwd.arturb.xyz:5000/training/measurement/" + fileUploadParams[0].activityType;
-        String charset = "UTF-8";
+        String path = "http://ppiwd.arturb.xyz:5000/training/measurement/" + fileUploadParams[0].activityType;
         File file = fileUploadParams[0].file;
-        String boundary = Long.toHexString(System.currentTimeMillis());
-        String CRLF = "\r\n";
 
-        URLConnection connection = null;
+        String boundary;
+        String LINE_FEED = "\r\n";
+        HttpURLConnection httpConn;
+        OutputStream outputStream;
+        PrintWriter writer;
+
+        boundary = "===" + System.currentTimeMillis() + "===";
+        URL url = null;
         try {
-            connection = new URL(url).openConnection();
-        } catch (IOException e) {
+            url = new URL(path);
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-
-        try (
-                OutputStream output = connection.getOutputStream();
-                PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, charset), true);
-        ) {
-            // Send normal param.
-            writer.append("--" + boundary).append(CRLF);
-            writer.append("Content-Disposition: form-data; name=\"param\"").append(CRLF);
-            writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF);
-
-            // Send text file.
-            writer.append("--" + boundary).append(CRLF);
-            writer.append("Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getName() + "\"").append(CRLF);
-            writer.append("Content-Type: text/plain; charset=" + charset).append(CRLF);
-            writer.append(CRLF).flush();
-            Files.copy(textFile.toPath(), output);
-            output.flush();
-            writer.append(CRLF).flush();
-
-            writer.append("--" + boundary + "--").append(CRLF).flush();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        int responseCode = 0;
         try {
-            responseCode = ((HttpURLConnection) connection).getResponseCode();
-            Log.i("MetaWear", String.valueOf(responseCode));
+            httpConn = (HttpURLConnection) url.openConnection();
+            httpConn.setUseCaches(false);
+            httpConn.setDoOutput(true);    // indicates POST method
+            httpConn.setDoInput(true);
+            httpConn.setRequestProperty("Content-Type",
+                    "multipart/form-data; boundary=" + boundary);
+            outputStream = httpConn.getOutputStream();
+            writer = new PrintWriter(new OutputStreamWriter(outputStream),
+                    true);
+            String fileName = file.getName();
+            writer.append("--" + boundary).append(LINE_FEED);
+            writer.append(
+                    "Content-Disposition: form-data; name=\"" + "measurements"
+                            + "\"; filename=\"" + fileName + "\"")
+                    .append(LINE_FEED);
+            writer.append(
+                    "Content-Type: "
+                            + URLConnection.guessContentTypeFromName(fileName))
+                    .append(LINE_FEED);
+            writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
+            writer.append(LINE_FEED);
+            writer.flush();
+
+            FileInputStream inputStream = new FileInputStream(file);
+            byte[] buffer = new byte[4096];
+            int bytesRead = -1;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            outputStream.flush();
+            inputStream.close();
+            writer.append(LINE_FEED);
+            writer.flush();
+
+            int status = httpConn.getResponseCode();
+            Log.i("Metawear c",String.valueOf(status));
+            if (status == HttpURLConnection.HTTP_OK) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        httpConn.getInputStream()));
+
+                reader.close();
+                httpConn.disconnect();
+            } else {
+                throw new IOException("Server returned non-OK status: " + status);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
