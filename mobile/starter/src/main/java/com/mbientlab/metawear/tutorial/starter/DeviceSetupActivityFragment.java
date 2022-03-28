@@ -66,11 +66,14 @@ import com.mbientlab.metawear.module.Led;
 import bolts.Continuation;
 import bolts.Task;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
@@ -81,8 +84,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -560,83 +566,89 @@ class FileUpload extends AsyncTask<FileUploadParams, Void, Void> {
 
 
     @Override
-    protected void onPreExecute(){
+    protected void onPreExecute() {
         super.onPreExecute();
         Log.i("MetaWear", "Starting Background Task");
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     @Override
     protected Void doInBackground(FileUploadParams... fileUploadParams) {
         String path = "http://ppiwd.arturb.xyz:5000/training/measurement/" + fileUploadParams[0].activityType;
         File file = fileUploadParams[0].file;
 
-        String boundary;
-        String LINE_FEED = "\r\n";
-        HttpURLConnection httpConn;
-        OutputStream outputStream;
-        PrintWriter writer;
+        String parameterName = "measurements";
+        String attachmentFileName = file.getName();
 
-        boundary = "===" + System.currentTimeMillis() + "===";
-        URL url = null;
-        try {
-            url = new URL(path);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        try {
-            httpConn = (HttpURLConnection) url.openConnection();
-            httpConn.setUseCaches(false);
-            httpConn.setDoOutput(true);    // indicates POST method
-            httpConn.setDoInput(true);
-            httpConn.setRequestProperty("Content-Type",
-                    "multipart/form-data; boundary=" + boundary);
-            outputStream = httpConn.getOutputStream();
-            writer = new PrintWriter(new OutputStreamWriter(outputStream),
-                    true);
-            String fileName = file.getName();
-            writer.append("--" + boundary).append(LINE_FEED);
-            writer.append(
-                    "Content-Disposition: form-data; name=\"" + "measurements"
-                            + "\"; filename=\"" + fileName + "\"")
-                    .append(LINE_FEED);
-            writer.append(
-                    "Content-Type: "
-                            + URLConnection.guessContentTypeFromName(fileName))
-                    .append(LINE_FEED);
-            writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
-            writer.append(LINE_FEED);
-            writer.flush();
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+        String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
 
-            FileInputStream inputStream = new FileInputStream(file);
-            byte[] buffer = new byte[4096];
-            int bytesRead = -1;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1 * 1024 * 1024;
+
+        HttpURLConnection connection = null;
+        DataOutputStream outputStream = null;
+        InputStream inputStream = null;
+
+        String[] q = attachmentFileName.split("/");
+        int idx = q.length - 1;
+        String fileMimeType = "text/csv";
+        try {
+            FileInputStream fileInputStream = new FileInputStream(file);
+
+            URL url = new URL(path);
+
+            connection = (HttpURLConnection) url.openConnection();
+
+            connection.setUseCaches(false);
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Connection", "Keep-Alive");
+            connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
+            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+            outputStream = new DataOutputStream(connection.getOutputStream());
+            outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+            outputStream.writeBytes("Content-Disposition: form-data; name=\"" + parameterName + "\"; filename=\"" + q[idx] + "\"" + lineEnd);
+            outputStream.writeBytes("Content-Type: " + fileMimeType + lineEnd);
+            outputStream.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
+
+            outputStream.writeBytes(lineEnd);
+
+            bytesAvailable = fileInputStream.available();
+            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            buffer = new byte[bufferSize];
+
+            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+            while (bytesRead > 0) {
+                outputStream.write(buffer, 0, bufferSize);
+                bytesAvailable = fileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
             }
+
+            outputStream.writeBytes(lineEnd);
+            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+            if (200 != connection.getResponseCode()) {
+                Log.i("Error", "Failed to upload code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
+            }
+
+            Log.i("Server response", "Code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
+
+            fileInputStream.close();
             outputStream.flush();
-            inputStream.close();
-            writer.append(LINE_FEED);
-            writer.flush();
-
-            int status = httpConn.getResponseCode();
-            Log.i("Metawear c",String.valueOf(status));
-            if (status == HttpURLConnection.HTTP_OK) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(
-                        httpConn.getInputStream()));
-
-                reader.close();
-                httpConn.disconnect();
-            } else {
-                throw new IOException("Server returned non-OK status: " + status);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            outputStream.close();
+        } catch (Exception e) {
+            Log.i("error", e.toString());
         }
         return null;
     }
 }
-
 class FileUploadParams {
     File file;
     String activityType;

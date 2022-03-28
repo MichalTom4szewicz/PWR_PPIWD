@@ -47,10 +47,7 @@
     <list default="true" id="a7d8f5da-67a0-4010-9fbb-a94f4fb9794a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/starter/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/DeviceSetupActivityFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/DeviceSetupActivityFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/starter/src/main/res/raw/certificate.crt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/starter/src/main/res/xml/network_security_config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/res/xml/network_security_config.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
