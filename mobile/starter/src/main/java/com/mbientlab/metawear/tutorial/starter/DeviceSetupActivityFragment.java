@@ -37,6 +37,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -65,14 +66,29 @@ import com.mbientlab.metawear.module.Led;
 import bolts.Continuation;
 import bolts.Task;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.lang.Math;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -110,6 +126,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                         "gyroscope_y(deg/sec)" + "," +
                         "gyroscope_z(deg/sec)" + "\n";
 
+    long timeWhenPaused = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -153,6 +170,8 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         Switch repeat10_switch = (Switch) view.findViewById(R.id.repeat10Switch);
         Switch repeat15_switch = (Switch) view.findViewById(R.id.repeat15Switch);
         Switch repeat20_switch = (Switch) view.findViewById(R.id.repeat20Switch);
+
+        Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer);
 
         jumping_jacks_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -317,6 +336,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
         view.findViewById(R.id.geo_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.geo_pause).setVisibility(View.VISIBLE);
+
+                view.findViewById(R.id.geo_stop).setEnabled(true);
+
+                simpleChronometer.setBase(SystemClock.elapsedRealtime());
+
                 Log.i("MetaWear", "Connected");
                 ledModule = metawear.getModule(Led.class);
 
@@ -345,10 +371,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                 repeat15_switch.setClickable(false);
                 repeat20_switch.setClickable(false);
 
-                view.findViewById(R.id.geo_start).setClickable(false);
 
-                Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
-                simpleChronometer.setBase(SystemClock.elapsedRealtime());
                 simpleChronometer.start(); // start a chronometer
 
                 gyro.angularVelocity().addRouteAsync(new RouteBuilder() {
@@ -395,16 +418,49 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             }
         });
 
+        view.findViewById(R.id.geo_pause).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.findViewById(R.id.geo_resume).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.geo_pause).setVisibility(View.INVISIBLE);
+
+                gyro.stop();
+                gyro.angularVelocity().stop();
+                Log.i("MetaWear", "Pause activity");
+
+                timeWhenPaused = simpleChronometer.getBase() - SystemClock.elapsedRealtime();
+                simpleChronometer.stop();
+            }
+        });
+
+        view.findViewById(R.id.geo_resume).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.findViewById(R.id.geo_pause).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.geo_resume).setVisibility(View.INVISIBLE);
+
+                gyro.start();
+                gyro.angularVelocity().start();
+                Log.i("MetaWear", "Resume activity");
+
+                simpleChronometer.setBase(SystemClock.elapsedRealtime() + timeWhenPaused);
+                simpleChronometer.start();
+            }
+        });
+
         view.findViewById(R.id.geo_stop).setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
 
+                view.findViewById(R.id.geo_pause).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.geo_resume).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
                 view.findViewById(R.id.timeText).setVisibility(View.INVISIBLE);
                 view.findViewById(R.id.simpleChronometer).setVisibility(View.INVISIBLE);
 
-                Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer); // initiate a chronometer
-                simpleChronometer.setBase(SystemClock.elapsedRealtime());
-                simpleChronometer.start(); // start a chronometer
+                simpleChronometer.stop();
+                timeWhenPaused = 0;
 
                 Log.i("MetaWear", "Connected");
                 ledModule = metawear.getModule(Led.class);
@@ -446,6 +502,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     os.write(csv_entry.getBytes());
                     os.close();
                     Log.i("MainActivity", "File is created!");
+                    sendFile(filePath);
                 } catch (IOException e) {
                     Log.i("MainActivity", "File NOT created ...!");
                     e.printStackTrace();
@@ -493,8 +550,111 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     public void onServiceDisconnected(ComponentName name) {
     }
 
-    /**
-     * Called when the app has reconnected to the board
-     */
+    public void sendFile(String filePath) {
+        File F = new File(filePath);
+        if (F == null) {
+            Log.i("MetaWear", "File not found");
+            return;
+        }
+        FileUploadParams params = new FileUploadParams(F,activityType);
+        new FileUpload().execute(params);
+    }
+
     public void reconnected() { }
+}
+class FileUpload extends AsyncTask<FileUploadParams, Void, Void> {
+
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        Log.i("MetaWear", "Starting Background Task");
+    }
+
+
+    @Override
+    protected Void doInBackground(FileUploadParams... fileUploadParams) {
+        String path = "http://ppiwd.arturb.xyz:5000/training/measurement/" + fileUploadParams[0].activityType;
+        File file = fileUploadParams[0].file;
+
+        String parameterName = "measurements";
+        String attachmentFileName = file.getName();
+
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+        String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
+
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1 * 1024 * 1024;
+
+        HttpURLConnection connection = null;
+        DataOutputStream outputStream = null;
+        InputStream inputStream = null;
+
+        String[] q = attachmentFileName.split("/");
+        int idx = q.length - 1;
+        String fileMimeType = "text/csv";
+        try {
+            FileInputStream fileInputStream = new FileInputStream(file);
+
+            URL url = new URL(path);
+
+            connection = (HttpURLConnection) url.openConnection();
+
+            connection.setUseCaches(false);
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Connection", "Keep-Alive");
+            connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
+            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+            outputStream = new DataOutputStream(connection.getOutputStream());
+            outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+            outputStream.writeBytes("Content-Disposition: form-data; name=\"" + parameterName + "\"; filename=\"" + q[idx] + "\"" + lineEnd);
+            outputStream.writeBytes("Content-Type: " + fileMimeType + lineEnd);
+            outputStream.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
+
+            outputStream.writeBytes(lineEnd);
+
+            bytesAvailable = fileInputStream.available();
+            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            buffer = new byte[bufferSize];
+
+            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+            while (bytesRead > 0) {
+                outputStream.write(buffer, 0, bufferSize);
+                bytesAvailable = fileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+            }
+
+            outputStream.writeBytes(lineEnd);
+            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+            if (200 != connection.getResponseCode()) {
+                Log.i("Error", "Failed to upload code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
+            }
+
+            Log.i("Server response", "Code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
+
+            fileInputStream.close();
+            outputStream.flush();
+            outputStream.close();
+        } catch (Exception e) {
+            Log.i("error", e.toString());
+        }
+        return null;
+    }
+}
+class FileUploadParams {
+    File file;
+    String activityType;
+
+    FileUploadParams(File file, String activityType) {
+        this.file = file;
+        this.activityType = activityType;
+    }
 }
