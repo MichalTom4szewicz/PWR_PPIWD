@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegistrationActivity">
+
+    <EditText
+        android:id="@+id/passwordInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:ems="10"
+        android:inputType="textPassword"
+        app:layout_constraintStart_toStartOf="@+id/passwordText"
+        app:layout_constraintTop_toBottomOf="@+id/emailInput" />
+
+    <TextView
+        android:id="@+id/passwordText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Password"
+        app:layout_constraintBottom_toTopOf="@+id/passwordInput"
+        app:layout_constraintStart_toStartOf="@+id/emailInput"
+        app:layout_constraintTop_toTopOf="@+id/passwordInput" />
+
+    <EditText
+        android:id="@+id/emailInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:ems="10"
+        android:inputType="textEmailAddress"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/registrationText" />
+
+    <TextView
+        android:id="@+id/registrationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="62dp"
+        android:text="Registration"
+        android:textFontWeight="20"
+        android:textSize="24pt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/nameInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text=""
+        app:layout_constraintStart_toStartOf="@+id/nameText"
+        app:layout_constraintTop_toBottomOf="@+id/passwordInput" />
+
+    <TextView
+        android:id="@+id/nameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name"
+        app:layout_constraintBottom_toTopOf="@+id/nameInput"
+        app:layout_constraintStart_toStartOf="@+id/passwordInput"
+        app:layout_constraintTop_toTopOf="@+id/nameInput" />
+
+    <EditText
+        android:id="@+id/surnameInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text=""
+        app:layout_constraintStart_toStartOf="@+id/surnameText"
+        app:layout_constraintTop_toBottomOf="@+id/nameInput" />
+
+    <Button
+        android:id="@+id/registerButton"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="44dp"
+        android:text="Register"
+        app:layout_constraintStart_toEndOf="@+id/cancelButton"
+        app:layout_constraintTop_toBottomOf="@+id/surnameInput" />
+
+    <Button
+        android:id="@+id/cancelButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        app:layout_constraintBaseline_toBaselineOf="@+id/registerButton"
+        app:layout_constraintStart_toStartOf="@+id/surnameInput" />
+
+    <TextView
+        android:id="@+id/emailText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        app:layout_constraintBottom_toTopOf="@+id/emailInput"
+        app:layout_constraintStart_toStartOf="@+id/emailInput"
+        app:layout_constraintTop_toTopOf="@+id/emailInput" />
+
+    <TextView
+        android:id="@+id/surnameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Surname"
+        app:layout_constraintBottom_toTopOf="@+id/surnameInput"
+        app:layout_constraintStart_toStartOf="@+id/nameInput"
+        app:layout_constraintTop_toTopOf="@+id/surnameInput" />
+
+</android.support.constraint.ConstraintLayout>

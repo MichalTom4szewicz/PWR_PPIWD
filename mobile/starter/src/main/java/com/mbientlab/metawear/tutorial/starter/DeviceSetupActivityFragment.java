@@ -87,6 +87,10 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -516,6 +520,14 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                         "gyroscope_z(deg/sec)" + "\n";
 
                 metawear.tearDown();
+            }
+        });
+        view.findViewById(R.id.register_temp_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent intent = new Intent(this, RegistrationActivity.class);
+                Intent intent = new Intent(view.getContext(),RegistrationActivity.class);
+                startActivity(intent);
             }
         });
     }

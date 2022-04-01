@@ -55,6 +55,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
     testImplementation 'junit:junit:4.13.2'
     implementation 'com.mbientlab:metawear:3.8.1'
     implementation 'com.mbientlab.bletoolbox:scanner:0.3.1'

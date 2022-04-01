@@ -46,8 +46,14 @@
   <component name="ChangeListManager">
     <list default="true" id="a7d8f5da-67a0-4010-9fbb-a94f4fb9794a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/starter/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/DeviceSetupActivityFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/DeviceSetupActivityFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/src/main/res/layout/fragment_device_setup.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/res/layout/fragment_device_setup.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/res/values/styles.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,6 +119,11 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="memory.settings.postsync.last.time.stamp" value="1647605671341" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
+  </component>
+  <component name="RecentsManager">
+    <key name="android.template.-1326808353">
+      <recent name="com.mbientlab.metawear.tutorial.starter" />
+    </key>
   </component>
   <component name="RunManager">
     <configuration default="true" type="AndroidJUnit" factoryName="Android JUnit">
