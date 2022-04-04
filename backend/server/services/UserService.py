@@ -39,9 +39,9 @@ class UserService:
     def authenticate(self, email: str, password: str):
         """This method returns whether the authentication for given credentials was successful"""
         user = self.findByEmail(email)
-        
-        if user:
-            return self.__compare_passwords(password, user.password)
+
+        if user and self.__compare_passwords(password, user.password):
+            return user
         else:
             return False
 

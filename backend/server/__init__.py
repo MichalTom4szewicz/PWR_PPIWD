@@ -10,6 +10,7 @@ from server.models.User import User
 from server.blueprints.Training import Training
 from server.blueprints.Auth import Auth
 
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 

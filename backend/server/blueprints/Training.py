@@ -11,7 +11,6 @@ jwt_service = JwtService()
 
 
 @Training.route('/training/measurement/<activity>', methods=['POST'])
-@jwt_service.token_required
 def save_training_measurements(activity):
     if 'measurements' not in request.files:
         res = {'errorMessage': 'No \'measurements\' file part'}
@@ -27,7 +26,6 @@ def save_training_measurements(activity):
 
 
 @Training.route('/training/download', methods=['GET'])
-@jwt_service.token_required
 def download_training_dataset():
     try:
         path_to_archive = dataset_service.exportTarGZ()

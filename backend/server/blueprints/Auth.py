@@ -9,6 +9,7 @@ Auth = Blueprint('auth', __name__)
 user_service = UserService()
 jwt_service = JwtService()
 
+
 @Auth.route('/auth/login', methods=['POST'])
 def login_user():
     token = None
@@ -22,9 +23,9 @@ def login_user():
     else:
         return {"errorMessage": "Request body must include email and password"}, 400
 
-    if user_service.authenticate(email, password):
-        user = user_service.findByEmail(email)
-        token = jwt_service.generate_jwt_token(user._id)
+    user = user_service.authenticate(email, password)
+    if user:
+        token = jwt_service.generate_jwt_token(user.id)
     else:
         return {"errorMessage": "Couldn't authenticate users with given credentials"}, 401
 

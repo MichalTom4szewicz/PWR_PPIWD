@@ -19,7 +19,7 @@ class JwtService:
 
     def generate_jwt_token(self, user_id):
         jwt_payload = {
-            "sub": user_id,
+            "sub": str(user_id),
             'iat': datetime.datetime.utcnow(),
             "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=45)
         }
