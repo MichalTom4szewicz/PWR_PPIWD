@@ -46,6 +46,5 @@ class JwtService:
                 current_user = self.user_service.findById(data['sub'])
             except Exception as e:
                 return {'errorMessage': 'token is invalid'}, 401
-
-            return f(current_user, *args, **kwargs)
+            return f(*args, **kwargs)
         return decorator

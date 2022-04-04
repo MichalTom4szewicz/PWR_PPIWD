@@ -37,4 +37,16 @@ def login_user():
 
 @Auth.route('/auth/register', methods=['POST'])
 def register_user():
-    return None
+    body = request.get_json()
+    if not("email" in body and "password" in body and "firstName" in body and "lastName" in body):
+        return {"errorMessage": "Request body must include email, password, firstName and lastName"}, 400
+
+    str_body = request.data.decode('UTF-8')
+    try:
+        created_user = user_service.createUserFromJSON(str_body)
+        if created_user:
+            return jsonify(created_user), 201
+        else:
+            return {"errorMessage": 'Error occurred during register process'}, 500
+    except Exception as e:
+        return {"errorMessage": 'Couldn\'t register user. ' + str(e)}, 400
