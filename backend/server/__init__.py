@@ -8,6 +8,7 @@ from server.services.UserService import UserService
 
 from server.models.User import User
 from server.blueprints.Training import Training
+from server.blueprints.Auth import Auth
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -19,5 +20,6 @@ def create_app():
     MongoEngine(app)
 
     app.register_blueprint(Training)
+    app.register_blueprint(Auth)
 
     return app
