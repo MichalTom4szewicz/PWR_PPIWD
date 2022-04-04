@@ -40,7 +40,10 @@ class UserService:
         """This method returns whether the authentication for given credentials was successful"""
         user = self.findByEmail(email)
 
-        return self.__compare_passwords(password, user.password)
+        if user and self.__compare_passwords(password, user.password):
+            return user
+        else:
+            return False
 
     def updateUser(self, id: str, data: dict):
         user = self.findById(id)
