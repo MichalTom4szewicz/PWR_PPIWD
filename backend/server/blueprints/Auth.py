@@ -53,4 +53,7 @@ def register_user():
 @Auth.route('/auth/me', methods=['GET'])
 @jwt_service.token_required
 def verify_token(user):
-    return jsonify(user), 200
+    if user:
+        return jsonify(user), 200
+    else:
+        return {"errorMessage": 'User associated with the provided token was not found'}, 404
