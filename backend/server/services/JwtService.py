@@ -27,6 +27,7 @@ class JwtService:
             jwt_payload, self.auth_config.secret_key, algorithm="HS256")
         return encoded
 
+    # Make sure to include the "user" parameter in the wrapped function
     def token_required(self, f):
         @wraps(f)
         def decorator(*args, **kwargs):
@@ -44,6 +45,7 @@ class JwtService:
                 data = jwt.decode(
                     token, self.auth_config.secret_key, algorithms=["HS256"])
                 current_user = self.user_service.findById(data['sub'])
+                kwargs['user'] = current_user
             except Exception as e:
                 return {'errorMessage': 'token is invalid'}, 401
             return f(*args, **kwargs)

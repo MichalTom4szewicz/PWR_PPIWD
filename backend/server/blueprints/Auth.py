@@ -1,6 +1,4 @@
-import logging
-import os
-from flask import Blueprint, Response, request, jsonify
+from flask import Blueprint, request, jsonify
 from server.services.UserService import UserService
 from server.services.JwtService import JwtService
 
@@ -50,3 +48,9 @@ def register_user():
             return {"errorMessage": 'Error occurred during register process'}, 500
     except Exception as e:
         return {"errorMessage": 'Couldn\'t register user. ' + str(e)}, 400
+
+
+@Auth.route('/auth/me', methods=['GET'])
+@jwt_service.token_required
+def verify_token(user):
+    return jsonify(user), 200
