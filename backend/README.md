@@ -33,6 +33,9 @@ Dla Linuxa będę tworzył też skrypty i Makefile
 ### Docker
 W przyszłości może powstanie Dockerfile, żeby uruchamiać całość w kontenerze
 
+### Postman
+W folderze **postman** znajdują się pliki konfiguracyjne dla kolekcji zapytań postmanowych do API. Aby z nich skorzystać należy w Postmanie zaimportować plik **backend.postman_collection.json** w sekcji Collections. Następnie wymagany jest import pliku zawierającego definicje zmiennych środowiskowych wymaganych do poprawnego działania zapytań **backend.postman_environment.json**.
+
 ## Struktura (COMING SOON)
 
 ## API (COMING SOON)
