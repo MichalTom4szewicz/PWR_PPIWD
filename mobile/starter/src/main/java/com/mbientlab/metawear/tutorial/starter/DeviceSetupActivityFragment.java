@@ -522,14 +522,6 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                 metawear.tearDown();
             }
         });
-        view.findViewById(R.id.register_temp_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Intent intent = new Intent(this, RegistrationActivity.class);
-                Intent intent = new Intent(view.getContext(),RegistrationActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 
     @Override

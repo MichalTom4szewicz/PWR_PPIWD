@@ -2,10 +2,12 @@ import logging
 import os
 from flask import Blueprint, Response, request, jsonify, send_file
 from server.services.DatasetService import DatasetService
+from server.services.JwtService import JwtService
 
 Training = Blueprint('training', __name__)
 
 dataset_service = DatasetService.getDefaultInstance()
+jwt_service = JwtService()
 
 
 @Training.route('/training/measurement/<activity>', methods=['POST'])

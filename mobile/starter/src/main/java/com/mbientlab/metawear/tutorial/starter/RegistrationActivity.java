@@ -4,21 +4,26 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.DataOutputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class RegistrationActivity extends AppCompatActivity {
     EditText email;
     EditText password;
-    EditText name;
-    EditText surname;
+    EditText firstName;
+    EditText lastName;
     Button register;
     Button cancel;
 
@@ -29,8 +34,8 @@ public class RegistrationActivity extends AppCompatActivity {
 
         email = findViewById(R.id.emailInput);
         password = findViewById(R.id.passwordInput);
-        name = findViewById(R.id.nameInput);
-        surname = findViewById(R.id.surnameInput);
+        firstName = findViewById(R.id.nameInput);
+        lastName = findViewById(R.id.surnameInput);
         register = findViewById(R.id.registerButton);
         cancel = findViewById(R.id.cancelButton);
 
@@ -38,7 +43,7 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(checkEnteredData()){
-                    RegistrationParams registrationParams = new RegistrationParams(email,password, name, surname);
+                    RegistrationParams registrationParams = new RegistrationParams(email,password, firstName, lastName);
                     new RegisterUser().execute(registrationParams);
                     finish();
                 }
@@ -64,14 +69,14 @@ public class RegistrationActivity extends AppCompatActivity {
             showToast("You must enter password to register!");
             return false;
         }
-        if (isEmpty(name)) {
-            name.setError("Name is required!");
+        if (isEmpty(firstName)) {
+            firstName.setError("Name is required!");
             showToast("You must enter name to register!");
             return false;
         }
 
-        if (isEmpty(surname)) {
-            surname.setError("Last name is required!");
+        if (isEmpty(lastName)) {
+            lastName.setError("Last name is required!");
             showToast("You must enter surname to register!");
             return false;
         }
@@ -95,34 +100,52 @@ public class RegistrationActivity extends AppCompatActivity {
 class RegisterUser extends AsyncTask<RegistrationParams, Void, Void> {
 
     @Override
-    protected Void doInBackground(RegistrationParams ...registrationParams) {
+    protected Void doInBackground(RegistrationParams... registrationParams) {
         String path = "http://ppiwd.arturb.xyz:5000/auth/register" ;
 
-        String parameterName = "";
-
-        String lineEnd = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
-
-
         HttpURLConnection connection = null;
-        DataOutputStream outputStream = null;
-        InputStream inputStream = null;
+
+        try {
+            URL url = new URL(path);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Connection", "Keep-Alive");
+            connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+            JSONObject cred = new JSONObject();
+            cred.put("email",registrationParams[0].email);
+            cred.put("password",registrationParams[0].password);
+            cred.put("firstName",registrationParams[0].firstName);
+            cred.put("lastName",registrationParams[0].lastName);
+
+            DataOutputStream localDataOutputStream = new DataOutputStream(connection.getOutputStream());
+            localDataOutputStream.writeBytes(cred.toString());
+            localDataOutputStream.flush();
+            localDataOutputStream.close();
+
+            Log.i("Registration status", String.valueOf(connection.getResponseCode()));
+            Log.i("Registration message", connection.getRequestMethod());
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
         return null;
     }
+
 }
 
 class RegistrationParams {
     String email;
     String password;
-    String name;
-    String surname;
+    String firstName;
+    String lastName;
 
 
-    RegistrationParams(EditText email,EditText password,EditText name,EditText surname) {
+    RegistrationParams(EditText email,EditText password,EditText firstName,EditText lastName) {
         this.email = email.toString();
         this.password = password.toString();
-        this.name = name.toString();
-        this.surname = surname.toString();
+        this.firstName = firstName.toString();
+        this.lastName = lastName.toString();
     }
 }

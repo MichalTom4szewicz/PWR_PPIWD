@@ -80,10 +80,11 @@ class UserService_test(unittest.TestCase):
         self.assertEqual(user.email, 'test2@test.com')
 
     def test_authenticate_user_with_correct_credentials(self):
-        self.userService.createUser(
+        user = self.userService.createUser(
             email="test@test.com", firstName="Jan", lastName="Kowalski", password="test")
 
-        self.assertTrue(self.userService.authenticate("test@test.com", "test"))
+        self.assertEqual(self.userService.authenticate(
+            "test@test.com", "test"), user)
 
     def test_dont_authenticate_user_with_correct_credentials(self):
         self.userService.createUser(
