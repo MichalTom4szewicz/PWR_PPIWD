@@ -87,6 +87,10 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
 
 import javax.net.ssl.HttpsURLConnection;
 

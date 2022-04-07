@@ -45,9 +45,45 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a7d8f5da-67a0-4010-9fbb-a94f4fb9794a" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../backend/docs/data_processing.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/postman/backend.postman_collection.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/postman/backend.postman_environment.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/server/blueprints/Auth.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/server/services/JwtService.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/data/LoginDataSource.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/data/LoginRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/data/Result.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/data/model/LoggedInUser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/ui/login/LoggedInUserView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/ui/login/LoginActivity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/ui/login/LoginFormState.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/ui/login/LoginResult.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/ui/login/LoginViewModel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/ui/login/LoginViewModelFactory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/res/layout/activity_login.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/res/values-land/dimens.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/res/values-w1240dp/dimens.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/starter/src/main/res/values-w600dp/dimens.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Pipfile" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Pipfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/Pipfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/Pipfile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/server/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/server/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/server/blueprints/Training.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/server/blueprints/Training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/server/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/server/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/server/services/UserService.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/server/services/UserService.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/tests/services/UserService_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/tests/services/UserService_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/local.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/starter/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/DeviceSetupActivityFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/DeviceSetupActivityFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/RegistrationActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/RegistrationActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/src/main/res/layout/fragment_device_setup.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/res/layout/fragment_device_setup.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/res/values/strings.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,6 +127,9 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedIndex" value="1" />
+  </component>
   <component name="ProjectId" id="26KdRnfC7r64RhUKguING6R7Xi7" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -113,6 +152,11 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="memory.settings.postsync.last.time.stamp" value="1647605671341" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
+  </component>
+  <component name="RecentsManager">
+    <key name="android.template.-1326808353">
+      <recent name="com.mbientlab.metawear.tutorial.starter" />
+    </key>
   </component>
   <component name="RunManager">
     <configuration default="true" type="AndroidJUnit" factoryName="Android JUnit">

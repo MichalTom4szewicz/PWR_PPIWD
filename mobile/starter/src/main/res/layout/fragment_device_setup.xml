@@ -253,5 +253,4 @@
         android:textSize="30sp"
         android:visibility="invisible"/>
 
-
 </RelativeLayout>

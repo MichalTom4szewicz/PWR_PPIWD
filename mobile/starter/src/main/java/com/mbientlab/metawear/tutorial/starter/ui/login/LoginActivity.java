@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.mbientlab.metawear.tutorial.starter.DeviceSetupActivity;
 import com.mbientlab.metawear.tutorial.starter.MainActivity;
 import com.mbientlab.metawear.tutorial.starter.R;
+import com.mbientlab.metawear.tutorial.starter.RegistrationActivity;
 import com.mbientlab.metawear.tutorial.starter.ui.login.LoginViewModel;
 import com.mbientlab.metawear.tutorial.starter.ui.login.LoginViewModelFactory;
 import com.mbientlab.metawear.tutorial.starter.databinding.ActivityLoginBinding;
@@ -45,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         final EditText passwordEditText = binding.password;
         final Button loginButton = binding.login;
         final ProgressBar loadingProgressBar = binding.loading;
+        final Button registrationButton = binding.signupButton;
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
             @Override
@@ -123,6 +125,13 @@ public class LoginActivity extends AppCompatActivity {
                 Intent i = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(i);
 //                loadingProgressBar.setVisibility(View.INVISIBLE);
+            }
+        });
+        registrationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), RegistrationActivity.class);
+                startActivity(intent);
             }
         });
     }
