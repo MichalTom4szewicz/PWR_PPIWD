@@ -26,16 +26,23 @@ flowchart
 ### Proces przetwarzania pomiarów
 ```mermaid
 flowchart
+  g{{Czy jest blokada przetwarzania?}}
+  h[Utwórz blokadę]
   a[/Wywołanie przetwarzania pomiarów/]
   b[Pobranie najstarszego nieprzetworzonego pomiaru]
   c[Klasyfikacja pomiaru]
   d[Zapisanie klasyfikacji do BD]
   e{{Czy są nieprzetworzne pomiary?}}
+  i[Usuń blokadę]
   f[/Koniec/]
 
-  a --> e
+  a --> g
+  g -->|nie| h
+  g -->|tak| f
+  h --> b
   e -->|tak| b
-  e ----->|nie| f
+  e -->|nie| i
+  i --> f
   b --> c
   c --> d
   d --> e
