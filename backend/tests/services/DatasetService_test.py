@@ -27,38 +27,38 @@ class DatasetService_test(unittest.TestCase):
     def test_savesFileToANewDirectory(self):
         data = "some\ttsv\tdata"
 
-        self.datasetService.saveMeasurement("activity_one", data)
+        self.datasetService.saveMeasurement("activity_one", 10, data)
 
         self.assertTrue(os.path.isfile(os.path.join(
-            self.tmpDir, "activity_one", "1.csv")))
+            self.tmpDir, "activity_one", "10", "1.csv")))
 
-        with open(os.path.join(self.tmpDir, "activity_one", "1.csv"), 'r') as f:
+        with open(os.path.join(self.tmpDir, "activity_one", "10", "1.csv"), 'r') as f:
             self.assertEqual(f.read(), data)
 
     def test_savesFilesToSeparateDirectories(self):
         data1 = "some\ttsv\tdata1"
         data2 = "some\ttsv\tdata2"
 
-        self.datasetService.saveMeasurement("activity_one", data1)
-        self.datasetService.saveMeasurement("activity_two", data2)
+        self.datasetService.saveMeasurement("activity_one", 10, data1)
+        self.datasetService.saveMeasurement("activity_two", 10, data2)
 
-        with open(os.path.join(self.tmpDir, "activity_one", "1.csv"), 'r') as f:
+        with open(os.path.join(self.tmpDir, "activity_one", "10", "1.csv"), 'r') as f:
             self.assertEqual(f.read(), data1)
 
-        with open(os.path.join(self.tmpDir, "activity_two", "1.csv"), 'r') as f:
+        with open(os.path.join(self.tmpDir, "activity_two", "10", "1.csv"), 'r') as f:
             self.assertEqual(f.read(), data2)
 
     def test_savesMultipleFilesToTheSameActivity(self):
         data1 = "some\ttsv\tdata1"
         data2 = "some\ttsv\tdata2"
 
-        self.datasetService.saveMeasurement("activity_one", data1)
-        self.datasetService.saveMeasurement("activity_one", data2)
+        self.datasetService.saveMeasurement("activity_one", 10, data1)
+        self.datasetService.saveMeasurement("activity_one", 10, data2)
 
-        with open(os.path.join(self.tmpDir, "activity_one", "1.csv"), 'r') as f:
+        with open(os.path.join(self.tmpDir, "activity_one", "10", "1.csv"), 'r') as f:
             self.assertEqual(f.read(), data1)
 
-        with open(os.path.join(self.tmpDir, "activity_one", "2.csv"), 'r') as f:
+        with open(os.path.join(self.tmpDir, "activity_one", "10", "2.csv"), 'r') as f:
             self.assertEqual(f.read(), data2)
 
     def test_exportsTarGZFile(self):
