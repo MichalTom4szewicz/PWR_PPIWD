@@ -22,7 +22,7 @@ class DatasetService:
         self.backup_dir = backup_dir
 
     def saveMeasurement(self, activity_name: str, repeat_count: int, data: str):
-        """Zapisuje nowy plik do klasy <activity_name> o treści <data>, w katalogu określonym przez <dataset_dir>"""
+        """Zapisuje nowy plik do klasy <activity_name>/<repeat_count> o treści <data>, w katalogu określonym przez <dataset_dir>"""
         directory_path = os.path.join(
             self.dataset_dir, activity_name.lower(), repeat_count)
         self.__createDirectoryIfNotExists(directory_path)

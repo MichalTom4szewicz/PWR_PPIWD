@@ -22,6 +22,7 @@ def save_training_measurements(activity):
 
     if 'count' not in request.args:
         return {'errorMessage': 'You must provide the count argument'}, 400
+
     csv_data = csv_file.read().decode("utf-8")
     count = request.args['count']
     dataset_service.saveMeasurement(activity, count, csv_data)
