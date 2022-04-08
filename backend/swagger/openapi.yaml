@@ -20,6 +20,12 @@ paths:
           description: Nazwa klasy przesyłanego pomiaru
           schema:
             type: string
+        - name: count
+          in: query
+          required: true
+          description: Liczba powtórzeń czynności
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
