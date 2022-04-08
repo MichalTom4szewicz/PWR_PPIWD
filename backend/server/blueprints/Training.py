@@ -19,8 +19,12 @@ def save_training_measurements(activity):
     if not csv_file.filename.endswith(('.csv', '.tsv')):
         res = {'errorMessage': 'File format should be csv or tsv'}
         return res, 400
+
+    if 'count' not in request.args:
+        return {'errorMessage': 'You must provide the count argument'}, 400
     csv_data = csv_file.read().decode("utf-8")
-    dataset_service.saveMeasurement(activity, csv_data)
+    count = request.args['count']
+    dataset_service.saveMeasurement(activity, count, csv_data)
     res = {'message': 'CSV/TSV uploaded'}
     return res, 200
 
