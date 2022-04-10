@@ -3,6 +3,7 @@ package com.mbientlab.metawear.tutorial.starter.ui.login;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.util.Log;
 import android.util.Patterns;
 
 import com.mbientlab.metawear.tutorial.starter.data.LoginRepository;
@@ -32,6 +33,7 @@ public class LoginViewModel extends ViewModel {
         // can be launched in a separate asynchronous job
         Result<LoggedInUser> result = loginRepository.login(username, password);
 
+        Log.i("aa", result.toString());
         if (result instanceof Result.Success) {
             LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
             loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
