@@ -41,7 +41,7 @@ def register_user():
 
     str_body = request.data.decode('UTF-8')
     try:
-        created_user = user_service.createUserFromJSON(str_body)
+        created_user = user_service.create_user_from_json(str_body)
         if created_user:
             return jsonify(created_user), 201
         else:

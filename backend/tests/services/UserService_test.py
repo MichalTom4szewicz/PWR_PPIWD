@@ -24,7 +24,7 @@ class UserService_test(unittest.TestCase):
         User.drop_collection()
 
     def test_can_create_user(self):
-        user = self.userService.createUser(
+        user = self.userService.create_user(
             email="test@test.com", firstName="Jan", lastName="Kowalski", password="test")
 
         self.assertIsNotNone(user)
@@ -39,55 +39,55 @@ class UserService_test(unittest.TestCase):
 
         user_json = json.dumps(user_dict)
 
-        user = self.userService.createUserFromJSON(user_json)
+        user = self.userService.create_user_from_json(user_json)
 
         self.assertEqual(user.email, 'test@test.com')
 
     def test_cannot_create_with_duplicate_email(self):
-        self.userService.createUser(
+        self.userService.create_user(
             email="test@test.com", firstName="Jan", lastName="Kowalski", password="test")
 
-        self.assertRaises(mongoengine.errors.NotUniqueError, lambda: self.userService.createUser(
+        self.assertRaises(mongoengine.errors.NotUniqueError, lambda: self.userService.create_user(
             email="test@test.com", firstName="Jan", lastName="Kowalski", password="test"))
 
     def test_can_find_existing_user(self):
-        self.userService.createUser(
+        self.userService.create_user(
             email="test@test.com", firstName="Jan", lastName="Kowalski", password="test")
 
-        user = self.userService.findByEmail("test@test.com")
+        user = self.userService.find_by_email("test@test.com")
 
         self.assertIsNotNone(user)
 
     def test_can_find_user_by_id(self):
-        user = self.userService.createUser(
+        user = self.userService.create_user(
             email="test@test.com", firstName="Jan", lastName="Kowalski", password="test")
 
-        self.assertIsNotNone(self.userService.findById(user.id))
+        self.assertIsNotNone(self.userService.find_by_id(user.id))
 
     def test_fail_to_find_when_not_existing(self):
-        self.assertIsNone(self.userService.findByEmail("test@test.com"))
+        self.assertIsNone(self.userService.find_by_email("test@test.com"))
 
     def test_can_update_existing_user(self):
-        user = self.userService.createUser(
+        user = self.userService.create_user(
             email="test@test.com", firstName="Jan", lastName="Kowalski", password="test")
 
         new_data = {
             'email': 'test2@test.com'
         }
 
-        user = self.userService.updateUser(user.id, new_data)
+        user = self.userService.update_user(user.id, new_data)
 
         self.assertEqual(user.email, 'test2@test.com')
 
     def test_authenticate_user_with_correct_credentials(self):
-        user = self.userService.createUser(
+        user = self.userService.create_user(
             email="test@test.com", firstName="Jan", lastName="Kowalski", password="test")
 
         self.assertEqual(self.userService.authenticate(
             "test@test.com", "test"), user)
 
     def test_dont_authenticate_user_with_correct_credentials(self):
-        self.userService.createUser(
+        self.userService.create_user(
             email="test@test.com", firstName="Jan", lastName="Kowalski", password="test")
 
         self.assertFalse(self.userService.authenticate(

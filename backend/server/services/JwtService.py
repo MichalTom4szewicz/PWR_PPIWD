@@ -44,7 +44,7 @@ class JwtService:
             try:
                 data = jwt.decode(
                     token, self.auth_config.secret_key, algorithms=["HS256"])
-                current_user = self.user_service.findById(data['sub'])
+                current_user = self.user_service.find_by_id(data['sub'])
                 kwargs['user'] = current_user
             except Exception as e:
                 return {'errorMessage': 'token is invalid'}, 401

@@ -27,7 +27,7 @@ class DatasetService_test(unittest.TestCase):
     def test_savesFileToANewDirectory(self):
         data = "some\ttsv\tdata"
 
-        self.datasetService.saveMeasurement("activity_one", 10, data)
+        self.datasetService.save_measurement("activity_one", 10, data)
 
         self.assertTrue(os.path.isfile(os.path.join(
             self.tmpDir, "activity_one", "10", "1.csv")))
@@ -39,8 +39,8 @@ class DatasetService_test(unittest.TestCase):
         data1 = "some\ttsv\tdata1"
         data2 = "some\ttsv\tdata2"
 
-        self.datasetService.saveMeasurement("activity_one", 10, data1)
-        self.datasetService.saveMeasurement("activity_two", 10, data2)
+        self.datasetService.save_measurement("activity_one", 10, data1)
+        self.datasetService.save_measurement("activity_two", 10, data2)
 
         with open(os.path.join(self.tmpDir, "activity_one", "10", "1.csv"), 'r') as f:
             self.assertEqual(f.read(), data1)
@@ -52,8 +52,8 @@ class DatasetService_test(unittest.TestCase):
         data1 = "some\ttsv\tdata1"
         data2 = "some\ttsv\tdata2"
 
-        self.datasetService.saveMeasurement("activity_one", 10, data1)
-        self.datasetService.saveMeasurement("activity_one", 10, data2)
+        self.datasetService.save_measurement("activity_one", 10, data1)
+        self.datasetService.save_measurement("activity_one", 10, data2)
 
         with open(os.path.join(self.tmpDir, "activity_one", "10", "1.csv"), 'r') as f:
             self.assertEqual(f.read(), data1)
@@ -74,7 +74,7 @@ class DatasetService_test(unittest.TestCase):
 
         now = datetime.now()
         time_str = now.strftime("%Y-%m-%d-%H-%M-%S")
-        backup_archive = self.datasetService.exportTarGZ()
+        backup_archive = self.datasetService.export_tar_gz()
 
         self.assertEqual(backup_archive.split(
             "/")[-1], f"train_{time_str}.tar.gz")
@@ -91,7 +91,7 @@ class DatasetService_test(unittest.TestCase):
             self.assertEqual(f.read(), "some\ttsv\tdata2\n")
 
     def test_defaultInstanceConfiguration(self):
-        defaultInstance = DatasetService.getDefaultInstance()
+        defaultInstance = DatasetService.get_default_instance()
 
         self.assertEqual(defaultInstance.dataset_dir,
                          config.training_dataset.dataset_dir)
