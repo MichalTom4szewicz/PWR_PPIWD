@@ -59,9 +59,13 @@ import com.mbientlab.metawear.Subscriber;
 import com.mbientlab.metawear.android.BtleService;
 import com.mbientlab.metawear.builder.RouteBuilder;
 import com.mbientlab.metawear.builder.RouteComponent;
+import com.mbientlab.metawear.data.Acceleration;
 import com.mbientlab.metawear.data.AngularVelocity;
+import com.mbientlab.metawear.data.MagneticField;
+import com.mbientlab.metawear.module.Accelerometer;
 import com.mbientlab.metawear.module.Gyro;
 import com.mbientlab.metawear.module.Led;
+import com.mbientlab.metawear.module.MagnetometerBmm150;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -106,6 +110,8 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     private FragmentSettings settings;
 
     private Gyro gyro;
+    private Accelerometer accelerometer;
+    private MagnetometerBmm150 magnetometer;
     private Led ledModule;
 
     Context ctx;
@@ -116,9 +122,28 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     double gyro_raw_y;
     double gyro_raw_z;
 
+    double accel_raw_x;
+    double accel_raw_y;
+    double accel_raw_z;
+
+    double magneto_raw_x;
+    double magneto_raw_y;
+    double magneto_raw_z;
+
     String gyro_string_x;
     String gyro_string_y;
     String gyro_string_z;
+
+    String accel_string_x;
+    String accel_string_y;
+    String accel_string_z;
+
+    String magneto_string_x;
+    String magneto_string_y;
+    String magneto_string_z;
+
+    Integer initial_accel_loop = 1;
+    Integer initial_gyro_loop = 1;
 
     String activityType="";
     String repetitions="";
@@ -128,7 +153,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                         "time(sec)" + "," +
                         "gyroscope_x(deg/sec)" + "," +
                         "gyroscope_y(deg/sec)" + "," +
-                        "gyroscope_z(deg/sec)" + "\n";
+                        "gyroscope_z(deg/sec)" + "," +
+                        "accelerometer_x(g)" + "," +
+                        "accelerometer_y(g)" + "," +
+                        "accelerometer_z(g)" + "," +
+                        "magnetometer_x(T)" + "," +
+                        "magnetometer_y(T)" + "," +
+                        "magnetometer_z(T)" + "\n";
 
     long timeWhenPaused = 0;
 
@@ -385,27 +416,18 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                             @RequiresApi(api = Build.VERSION_CODES.O)
                             @Override
                             public void apply(Data data, Object... env) {
-                                Log.i("MainActivity", data.value(AngularVelocity.class).toString());
+                                Log.i("Gyro", data.value(AngularVelocity.class).toString());
 
                                 // Read Gyro and Prepare for writing to CSV
                                 gyro_raw_x = data.value(AngularVelocity.class).x();
                                 gyro_raw_y = data.value(AngularVelocity.class).y();
                                 gyro_raw_z = data.value(AngularVelocity.class).z();
-                                gyro_raw_x = Math.toRadians(gyro_raw_x);
-                                gyro_raw_y = Math.toRadians(gyro_raw_y);
-                                gyro_raw_z = Math.toRadians(gyro_raw_z);
 
                                 gyro_string_x = Double.toString(gyro_raw_x);
                                 gyro_string_y = Double.toString(gyro_raw_y);
                                 gyro_string_z = Double.toString(gyro_raw_z);
 
-                                csv_entry = csv_entry +
-                                            activityType + "," +
-                                            repetitions + "," +
-                                            time.now().toString() + "," +
-                                            gyro_string_x + "," +
-                                            gyro_string_y + "," +
-                                            gyro_string_z + "\n";
+                                initial_gyro_loop = 0;
                             }
 
                         });
@@ -416,6 +438,84 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                         gyro.angularVelocity().start();
                         gyro.start();
 
+                        initial_gyro_loop = 1;
+
+                        return null;
+                    }
+                });
+                accelerometer.acceleration().addRouteAsync(new RouteBuilder() {
+                    @Override
+                    public void configure(RouteComponent source) {
+                        source.stream(new Subscriber() {
+                            @RequiresApi(api = Build.VERSION_CODES.O)
+                            @Override
+                            public void apply(Data data, Object... env) {
+                                Log.i("Accel", data.value(Acceleration.class).toString());
+
+                                // Read Accel and Prepare for writing to CSV
+                                accel_raw_x = data.value(Acceleration.class).x();
+                                accel_raw_y = data.value(Acceleration.class).y();
+                                accel_raw_z = data.value(Acceleration.class).z();
+                                accel_string_x = Double.toString(accel_raw_x);
+                                accel_string_y = Double.toString(accel_raw_y);
+                                accel_string_z = Double.toString(accel_raw_z);
+
+                                initial_accel_loop = 0;
+                            }
+                        });
+                    }
+                }).continueWith(new Continuation<Route, Void>() {
+
+                    @Override
+                    public Void then(Task<Route> task) throws Exception {
+                        accelerometer.acceleration().start();
+                        accelerometer.start();
+
+                        initial_accel_loop = 1;
+
+                        return null;
+                    }
+                });
+                magnetometer.magneticField().addRouteAsync(new RouteBuilder() {
+                    @Override
+                    public void configure(RouteComponent source) {
+                        source.stream(new Subscriber() {
+                            @RequiresApi(api = Build.VERSION_CODES.O)
+                            @Override
+                            public void apply(Data data, Object ... env) {
+                                Log.i("Magneto", data.value(MagneticField.class).toString());
+
+                                // Read Magneto and Prepare for writing to CSV
+                                magneto_raw_x = data.value(MagneticField.class).x();
+                                magneto_raw_y = data.value(MagneticField.class).y();
+                                magneto_raw_z = data.value(MagneticField.class).z();
+                                magneto_string_x = Double.toString(magneto_raw_x);
+                                magneto_string_y = Double.toString(magneto_raw_y);
+                                magneto_string_z = Double.toString(magneto_raw_z);
+
+                                if(initial_accel_loop == 0 && initial_gyro_loop == 0){
+                                    csv_entry = csv_entry +
+                                            activityType + "," +
+                                            repetitions + "," +
+                                            time.now().toString() + "," +
+                                            gyro_string_x + "," +
+                                            gyro_string_y + "," +
+                                            gyro_string_z + "," +
+                                            accel_string_x + "," +
+                                            accel_string_y + "," +
+                                            accel_string_z + "," +
+                                            magneto_string_x + "," +
+                                            magneto_string_y + "," +
+                                            magneto_string_z + "\n";
+                                }
+                            }
+                        });
+                    }
+                }).continueWith(new Continuation<Route, Void>() {
+                    @Override
+                    public Void then(Task<Route> task) throws Exception {
+                        magnetometer.magneticField().start();
+                        magnetometer.start();
                         return null;
                     }
                 });
@@ -430,6 +530,10 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
                 gyro.stop();
                 gyro.angularVelocity().stop();
+                accelerometer.acceleration().stop();
+                accelerometer.stop();
+                magnetometer.magneticField().stop();
+                magnetometer.stop();
                 Log.i("MetaWear", "Pause activity");
 
                 timeWhenPaused = simpleChronometer.getBase() - SystemClock.elapsedRealtime();
@@ -445,6 +549,11 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
                 gyro.start();
                 gyro.angularVelocity().start();
+                accelerometer.acceleration().start();
+                accelerometer.start();
+                magnetometer.magneticField().start();
+                magnetometer.start();
+
                 Log.i("MetaWear", "Resume activity");
 
                 simpleChronometer.setBase(SystemClock.elapsedRealtime() + timeWhenPaused);
@@ -500,6 +609,10 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
                 gyro.stop();
                 gyro.angularVelocity().stop();
+                accelerometer.acceleration().stop();
+                accelerometer.stop();
+                magnetometer.magneticField().stop();
+                magnetometer.stop();
 
                 try {
                     OutputStream os = new FileOutputStream(f);
@@ -517,7 +630,16 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                         "time(sec)" + "," +
                         "gyroscope_x(deg/sec)" + "," +
                         "gyroscope_y(deg/sec)" + "," +
-                        "gyroscope_z(deg/sec)" + "\n";
+                        "gyroscope_z(deg/sec)" + "," +
+                        "accelerometer_x(g)" + "," +
+                        "accelerometer_y(g)" + "," +
+                        "accelerometer_z(g)" + "," +
+                        "magnetometer_x(T)" + "," +
+                        "magnetometer_y(T)" + "," +
+                        "magnetometer_z(T)" + "\n";
+
+                initial_accel_loop = 1;
+                initial_gyro_loop = 1;
 
                 metawear.tearDown();
             }
@@ -545,8 +667,17 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
         gyro = metawear.getModule(Gyro.class);
         gyro.configure()
-                .odr(Gyro.OutputDataRate.ODR_50_HZ)
-                .range(Gyro.Range.FSR_2000)
+                .odr(Gyro.OutputDataRate.ODR_25_HZ)
+                .commit();
+
+        accelerometer = metawear.getModule(Accelerometer.class);
+        accelerometer.configure()
+                .odr(25f)
+                .commit();
+
+        magnetometer = metawear.getModule(MagnetometerBmm150.class);
+        magnetometer.configure()
+                .outputDataRate(MagnetometerBmm150.OutputDataRate.ODR_25_HZ)
                 .commit();
     }
 
