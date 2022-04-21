@@ -8,7 +8,7 @@ from server.models.User import User
 
 class UserService:
 
-    def createUser(self, email: str, firstName: str, lastName: str, password: str):
+    def create_user(self, email: str, firstName: str, lastName: str, password: str):
         """
         This method creates a new user account. It will raise an exception when required fields are not present or there's a duplicate email
         """
@@ -19,7 +19,7 @@ class UserService:
 
         return user
 
-    def createUserFromJSON(self, json_str: str):
+    def create_user_from_json(self, json_str: str):
         user_json = json.loads(json_str)
 
         user_json['password'] = self.__hash_and_salt(user_json['password'])
@@ -29,24 +29,24 @@ class UserService:
 
         return user
 
-    def findByEmail(self, email: str) -> User:
+    def find_by_email(self, email: str) -> User:
         """This method returns a user object that has the given email. It returns None when no user is found"""
         return User.objects(email=email).first()
 
-    def findById(self, id: str) -> User:
+    def find_by_id(self, id: str) -> User:
         return User.objects(id=id).first()
 
     def authenticate(self, email: str, password: str):
         """This method returns whether the authentication for given credentials was successful"""
-        user = self.findByEmail(email)
+        user = self.find_by_email(email)
 
         if user and self.__compare_passwords(password, user.password):
             return user
         else:
             return False
 
-    def updateUser(self, id: str, data: dict):
-        user = self.findById(id)
+    def update_user(self, id: str, data: dict):
+        user = self.find_by_id(id)
 
         if 'email' in data:
             user.email = data['email']

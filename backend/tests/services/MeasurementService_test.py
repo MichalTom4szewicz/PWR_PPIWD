@@ -1,3 +1,4 @@
+from datetime import datetime
 import textwrap
 import unittest
 
@@ -99,3 +100,38 @@ class MeasurementServiceTest(unittest.TestCase):
         for i in range(5):
             self.assertEqual(
                 measurement.classifications[i], classifications[i])
+
+    def test_get_next_unprocessed(self):
+        user = User(
+            email="jan.kowalski@gmail.com",
+            password="password",
+            firstName="Jan",
+            lastName="Kowalski"
+        )
+        user = user.save()
+
+        data = textwrap.dedent("""
+        123 123 123
+        321 321 321
+        """)
+
+        measurement1 = Measurement(user=user, data=data)
+        measurement1.save()
+        measurement2 = Measurement(
+            user=user, data=data, processed_at=datetime.now())
+        measurement2 = measurement2.save()
+
+        unprocessed = self.measurementService.get_next_unprocessed()
+
+        self.assertEqual(unprocessed, measurement1)
+
+        measurement1.processed_at = datetime.now()
+        measurement1.save()
+
+        unprocessed = self.measurementService.get_next_unprocessed()
+
+        self.assertIsNone(unprocessed)
+
+
+if __name__ == "__main__":
+    unittest.main()

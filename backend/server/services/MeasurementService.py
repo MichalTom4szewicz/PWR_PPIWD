@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from server.models.Measurement import Measurement, MeasurementClassification
 from server.models.User import User
@@ -12,6 +13,7 @@ class MeasurementService:
 
     def classify_measurement(self, measurement: Measurement, classifications: list[MeasurementClassification]) -> Measurement:
         measurement.classifications = classifications
+        measurement.processed_at = datetime.now()
 
         return measurement.save()
 
@@ -20,3 +22,7 @@ class MeasurementService:
 
     def find_by_user(self, user: User) -> list[Measurement]:
         return Measurement.objects(user=user)
+
+    def get_next_unprocessed(self) -> Optional[Measurement]:
+        unprocessed = Measurement.objects(processed_at=None).limit(1)
+        return unprocessed[0] if len(unprocessed) else None
