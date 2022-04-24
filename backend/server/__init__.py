@@ -9,6 +9,7 @@ from server.services.UserService import UserService
 from server.models.User import User
 from server.blueprints.Training import Training
 from server.blueprints.Auth import Auth
+from server.config import config
 
 
 def create_app():
@@ -16,7 +17,8 @@ def create_app():
 
     CORS(app)
     app.config["MONGODB_SETTINGS"] = {
-        'db': 'ppiwd'
+        'db': config.db_config.db,
+        'host': config.db_config.host
     }
     MongoEngine(app)
 
