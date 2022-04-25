@@ -8,6 +8,8 @@ class ConfigKeys(str, Enum):
     TRAINING_DATASET_DIR = "TRAINING_DATASET_DIR"
     TRAINING_BACKUP_DIR = "TRAINING_BACKUP_DIR"
     SECRET_KEY = "SECRET_KEY"
+    DB_NAME = "DB_NAME"
+    DB_HOST = "DB_HOST"
 
 
 class Config:
@@ -16,12 +18,17 @@ class Config:
         cfg = dotenv.dotenv_values(config_file)
         self.training_dataset = TrainingDatasetConfig()
         self.auth_config = AuthConfig()
+        self.db_config = DBConfig()
         if ConfigKeys.TRAINING_DATASET_DIR in cfg:
             self.training_dataset.dataset_dir = cfg["TRAINING_DATASET_DIR"]
         if ConfigKeys.TRAINING_BACKUP_DIR in cfg:
             self.training_dataset.backup_dir = cfg["TRAINING_BACKUP_DIR"]
         if ConfigKeys.SECRET_KEY in cfg:
             self.auth_config.secret_key = cfg["SECRET_KEY"]
+        if ConfigKeys.DB_NAME in cfg:
+            self.db_config.db = cfg[ConfigKeys.DB_NAME]
+        if ConfigKeys.DB_HOST in cfg:
+            self.db_config.host = cfg[ConfigKeys.DB_HOST]
 
 
 @dataclass
@@ -30,10 +37,18 @@ class TrainingDatasetConfig:
     dataset_dir: str = "./train/dataset"
     backup_dir: str = "./train/backup"
 
+
 @dataclass
 class AuthConfig:
 
     secret_key: str = ""
+
+
+@dataclass
+class DBConfig:
+
+    db: str = "ppiwd"
+    host: str = "localhost"
 
 
 # Default configuration, it loads configuration from .env file

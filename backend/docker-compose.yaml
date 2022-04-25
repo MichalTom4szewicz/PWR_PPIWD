@@ -3,6 +3,15 @@ version: '3.1'
 
 services:
 
+  backend:
+    build: .
+    restart: always
+    ports:
+      - 5000:5000
+    volumes:
+      - ./.env.docker:/app/.env
+      - ppiwd_dataset:/data
+
   mongo:
     image: mongo
     restart: always
@@ -18,3 +27,6 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+
+volumes:
+  ppiwd_dataset:
