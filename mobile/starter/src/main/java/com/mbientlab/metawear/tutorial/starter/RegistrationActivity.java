@@ -143,9 +143,9 @@ class RegistrationParams {
 
 
     RegistrationParams(EditText email,EditText password,EditText firstName,EditText lastName) {
-        this.email = email.toString();
-        this.password = password.toString();
-        this.firstName = firstName.toString();
-        this.lastName = lastName.toString();
+        this.email = email.getText().toString();
+        this.password = password.getText().toString();
+        this.firstName = firstName.getText().toString();
+        this.lastName = lastName.getText().toString();
     }
 }
