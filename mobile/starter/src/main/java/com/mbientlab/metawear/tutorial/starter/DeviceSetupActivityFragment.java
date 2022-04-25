@@ -70,33 +70,20 @@ import com.mbientlab.metawear.module.MagnetometerBmm150;
 import bolts.Continuation;
 import bolts.Task;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.lang.Math;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.EditText;
 
-import javax.net.ssl.HttpsURLConnection;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -146,7 +133,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     Integer initial_gyro_loop = 1;
 
     String activityType="";
-    String repetitions="";
+    Integer repetitions=null;
 
     String csv_entry = "activity_type" + "," +
                         "repetitions" + "," +
@@ -216,7 +203,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     running_switch.setChecked(false);
                     boxing_switch.setChecked(false);
                     activityType="jumping_jacks";
-                    if (repetitions != ""){
+                    if (repetitions != null){
                         view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
                         view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
                     }
@@ -236,7 +223,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     running_switch.setChecked(false);
                     boxing_switch.setChecked(false);
                     activityType="squats";
-                    if (repetitions != ""){
+                    if (repetitions != null){
                         view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
                         view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
                     }
@@ -256,7 +243,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     squats_switch.setChecked(false);
                     boxing_switch.setChecked(false);
                     activityType="running";
-                    if (repetitions != ""){
+                    if (repetitions != null){
                         view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
                         view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
                     }
@@ -276,7 +263,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     squats_switch.setChecked(false);
                     running_switch.setChecked(false);
                     activityType="boxing";
-                    if (repetitions != ""){
+                    if (repetitions != null){
                         view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
                         view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
                     }
@@ -295,13 +282,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     repeat10_switch.setChecked(false);
                     repeat15_switch.setChecked(false);
                     repeat20_switch.setChecked(false);
-                    repetitions="5";
-                    if (activityType != "") {
+                    repetitions=5;
+                    if (activityType != null) {
                         view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
                         view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
                     }
                 } else {
-                    repetitions="";
+                    repetitions=null;
                     view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
                     view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
                 }
@@ -315,13 +302,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     repeat5_switch.setChecked(false);
                     repeat15_switch.setChecked(false);
                     repeat20_switch.setChecked(false);
-                    repetitions="10";
+                    repetitions=10;
                     if (activityType != "") {
                         view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
                         view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
                     }
                 } else {
-                    repetitions="";
+                    repetitions=null;
                     view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
                     view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
                 }
@@ -335,13 +322,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     repeat5_switch.setChecked(false);
                     repeat10_switch.setChecked(false);
                     repeat20_switch.setChecked(false);
-                    repetitions="15";
+                    repetitions=15;
                     if (activityType != "") {
                         view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
                         view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
                     }
                 } else {
-                    repetitions="";
+                    repetitions=null;
                     view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
                     view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
                 }
@@ -355,13 +342,13 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     repeat5_switch.setChecked(false);
                     repeat10_switch.setChecked(false);
                     repeat15_switch.setChecked(false);
-                    repetitions="20";
+                    repetitions=20;
                     if (activityType != "") {
                         view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
                         view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
                     }
                 } else {
-                    repetitions="";
+                    repetitions=null;
                     view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
                     view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
                 }
@@ -496,7 +483,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                                 if(initial_accel_loop == 0 && initial_gyro_loop == 0){
                                     csv_entry = csv_entry +
                                             activityType + "," +
-                                            repetitions + "," +
+                                            repetitions.toString() + "," +
                                             time.now().toString() + "," +
                                             gyro_string_x + "," +
                                             gyro_string_y + "," +
@@ -566,6 +553,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             @Override
             public void onClick(View v) {
 
+                view.findViewById(R.id.geo_stop).setEnabled(false);
                 view.findViewById(R.id.geo_pause).setVisibility(View.INVISIBLE);
                 view.findViewById(R.id.geo_resume).setVisibility(View.INVISIBLE);
                 view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
@@ -691,7 +679,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             Log.i("MetaWear", "File not found");
             return;
         }
-        FileUploadParams params = new FileUploadParams(F,activityType);
+        FileUploadParams params = new FileUploadParams(F,activityType, repetitions);
         new FileUpload().execute(params);
     }
 
@@ -709,7 +697,7 @@ class FileUpload extends AsyncTask<FileUploadParams, Void, Void> {
 
     @Override
     protected Void doInBackground(FileUploadParams... fileUploadParams) {
-        String path = "http://ppiwd.arturb.xyz:5000/training/measurement/" + fileUploadParams[0].activityType;
+        String path = "http://ppiwd.arturb.xyz:5000/training/measurement/" + fileUploadParams[0].activityType +"?count="+fileUploadParams[0].repetitions;
         File file = fileUploadParams[0].file;
 
         String parameterName = "measurements";
@@ -725,7 +713,6 @@ class FileUpload extends AsyncTask<FileUploadParams, Void, Void> {
 
         HttpURLConnection connection = null;
         DataOutputStream outputStream = null;
-        InputStream inputStream = null;
 
         String[] q = attachmentFileName.split("/");
         int idx = q.length - 1;
@@ -787,9 +774,11 @@ class FileUpload extends AsyncTask<FileUploadParams, Void, Void> {
 class FileUploadParams {
     File file;
     String activityType;
+    Integer repetitions;
 
-    FileUploadParams(File file, String activityType) {
+    FileUploadParams(File file, String activityType, Integer repetitions) {
         this.file = file;
         this.activityType = activityType;
+        this.repetitions = repetitions;
     }
 }

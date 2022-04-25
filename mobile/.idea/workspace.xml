@@ -46,20 +46,17 @@
   <component name="ChangeListManager">
     <list default="true" id="a7d8f5da-67a0-4010-9fbb-a94f4fb9794a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/local.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/starter/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/DeviceSetupActivityFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/DeviceSetupActivityFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/starter/src/main/res/layout/activity_registration.xml" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/res/layout/activity_registration.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/RegistrationActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/starter/src/main/java/com/mbientlab/metawear/tutorial/starter/RegistrationActivity.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[R58M677VHFH]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[40c3cc5e]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
