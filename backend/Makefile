@@ -1,5 +1,5 @@
 start_docker:
-	docker-compose up -d
+	docker-compose up -d mongo mongo-express
 
 start_flask_dev:
 	FLASK_ENVIRONMENT=development ./start.sh
