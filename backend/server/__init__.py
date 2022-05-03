@@ -9,6 +9,7 @@ from server.services.UserService import UserService
 from server.models.User import User
 from server.blueprints.Training import Training
 from server.blueprints.Auth import Auth
+from server.blueprints.Measurement import Measurement
 from server.config import config
 
 
@@ -24,5 +25,6 @@ def create_app():
 
     app.register_blueprint(Training)
     app.register_blueprint(Auth)
+    app.register_blueprint(Measurement)
 
     return app

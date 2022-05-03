@@ -168,6 +168,154 @@
 			"response": []
 		},
 		{
+			"name": "get_measurements_summary",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/measurements/summary",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"measurements",
+						"summary"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "save_unprocessed_measurement",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "measurements",
+							"type": "file",
+							"src": "/Users/jakubfaldasz/Projects/PWR/PWR_PPIWD/backend/test.csv"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/measurement",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"measurement"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_unprocessed_measurements",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "measurements",
+							"type": "file",
+							"src": "/Users/jakubfaldasz/Projects/PWR/PWR_PPIWD/backend/test.csv"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/measurement",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"measurement"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "download_training_measurements",
 			"event": [
 				{
