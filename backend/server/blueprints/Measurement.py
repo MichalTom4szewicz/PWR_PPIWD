@@ -1,4 +1,5 @@
 from flask import Blueprint, Response, request, jsonify, send_file
+from server.services.ClassificationService import ClassificationService
 from server.models.User import User
 from server.services.MeasurementService import MeasurementService
 from server.services.JwtService import JwtService
@@ -6,6 +7,7 @@ from server.services.JwtService import JwtService
 Measurement = Blueprint('measurements', __name__)
 
 measurement_service = MeasurementService()
+classification_service = ClassificationService(measurement_service)
 jwt_service = JwtService()
 
 
@@ -22,6 +24,8 @@ def save_unprocessed_measurement(user: User):
 
     csv_data = csv_file.read().decode("utf-8")
     measurement_service.create_measurement(csv_data, user)
+    classification_service.trigger_processing()
+
     res = {'message': 'Unprocessed measurement has been saved'}
     return res, 200
 
