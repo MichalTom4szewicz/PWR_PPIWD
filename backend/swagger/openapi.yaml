@@ -112,6 +112,53 @@ paths:
         '401':
           description: Niepoprawny albo brak JWT
 
+  /measurements:
+    get:
+      summary: Zwraca wszystkie pomiary dla uzytkownika
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Nieprzetworzone pomiary uzytkownika
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Measurement'
+    post:
+      summary: Odbiera dane w formacie CSV i zapisuje je w bazie danych jako nieprzetworzony pomiar dla danego uzytkownika
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                measurements:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: "Pomyślnie zapisano nieprzetworzony pomiar"
+        '400':
+          description: "Wystąpił błąd"
+  /measurements/summary:
+    get:
+      summary: Zwraca podsumowanie treningu dla uzytkownika (Przetworzone pomiary)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Przetworzone pomiary uzytkownika
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Measurement'
+  
+
 
 components:
   securitySchemes:
@@ -162,3 +209,27 @@ components:
         updatedAt:
           type: string
           format: date-time
+    Measurement:
+      properties:
+        id:
+          type: string
+          example: "62716974649822ad8fa42e71"
+        classifications: 
+          type: array
+          items:
+            type: object
+        data:
+          type: string
+          example: "c1;c2\nv1;v2\n"
+        processed_at:
+          type: object
+          properties:
+            date:
+              type: string
+        sent_at:
+          type: object
+          properties:
+            date:
+              type: string
+        user:
+          $ref: '#/components/schemas/User'

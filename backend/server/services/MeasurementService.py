@@ -23,6 +23,9 @@ class MeasurementService:
     def find_by_user(self, user: User) -> list[Measurement]:
         return Measurement.objects(user=user)
 
+    def find_processed_by_user(self, user: User) -> list[Measurement]:
+        return Measurement.objects(user=user, processed_at__ne=None)
+
     def get_next_unprocessed(self) -> Optional[Measurement]:
         unprocessed = Measurement.objects(processed_at=None).limit(1)
         return unprocessed[0] if len(unprocessed) else None
