@@ -34,11 +34,11 @@ def save_unprocessed_measurement(user: User):
 @jwt_service.token_required
 def get_all_user_measurements(user: User):
     user_measurements = measurement_service.find_by_user(user)
-    return jsonify(user_measurements), 200
+    return jsonify([m.to_dict() for m in user_measurements]), 200
 
 
 @Measurement.route('/measurements/summary', methods=['GET'])
 @jwt_service.token_required
 def get_processed_user_measurements(user: User):
     user_measurements = measurement_service.find_processed_by_user(user)
-    return jsonify(user_measurements), 200
+    return jsonify([m.to_dict() for m in user_measurements]), 200

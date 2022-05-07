@@ -18,3 +18,13 @@ class User(Document):
             self.createdAt = datetime.datetime.now()
         self.modifiedAt = datetime.datetime.now()
         return super(User, self).save(*args, **kwargs)
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'email': self.email,
+            'firstName': self.firstName,
+            'lastName': self.lastName,
+            'createdAt': str(self.createdAt),
+            'updatedAt': str(self.updatedAt)
+        }
