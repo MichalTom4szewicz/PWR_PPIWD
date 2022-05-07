@@ -21,3 +21,11 @@ class Measurement(Document):
     classifications = EmbeddedDocumentListField(MeasurementClassification)
     sent_at = DateTimeField(default=datetime.datetime.now)
     processed_at = DateTimeField(null=True)
+
+    def to_dict(self):
+        return {
+            'user': str(self.user.id),
+            'classifications': self.classifications,
+            'sent_at': str(self.sent_at),
+            'processed_at': str(self.processed_at)
+        }

@@ -54,6 +54,6 @@ def register_user():
 @jwt_service.token_required
 def verify_token(user):
     if user:
-        return jsonify(user), 200
+        return jsonify(user.to_dict()), 200
     else:
         return {"errorMessage": 'User associated with the provided token was not found'}, 404
