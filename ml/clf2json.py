@@ -2,7 +2,10 @@ from datetime import datetime
 import joblib
 import json
 
-def clf2json(data, user_id, id):
+# data - csv file path (?) / csv file (?)
+# clf - "rf" | "dt" | "mlp" | "svm" | "cnn"
+
+def clf2json(data, user_id, id, clf):
     response = {
         "_id": {
             "$oid": id
@@ -24,11 +27,15 @@ def clf2json(data, user_id, id):
 
     # Data Format
 
-    # Accelerometr (X,Y,Z) + Magnetometr (X,Y,Z) => 6 values x 12 (window - 3s 4Hz) = 72 columns
+    # Accelerometr (X,Y,Z) + Magnetometr (X,Y,Z) => 6 values x N (based on window size and undersampling frequency)
+    # Actually it cant be like that becuase every clf may need different data
+    # Maybe just use Accelerometr / Magnetometr / Gyroscope for all of them (?)
+    # Then  Accelerometr (X,Y,Z) + Magnetometr (X,Y,Z) + Magnetometr (X,Y,Z)
 
     X_test = data
 
-    # model = joblib.load('./models/rf_model_300_25.sav')
+    model = joblib.load('./models/' + clf + '.sav')
+
     # y_pred = model.predict(X_test)
 
     # TODO: map y_pred to classifications
