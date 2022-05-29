@@ -1,3 +1,4 @@
 data/
 backend_data/*
+!backend_data/PPWID_100_10.csv
 .ipynb_checkpoints/
