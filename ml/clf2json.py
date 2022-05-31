@@ -3,6 +3,7 @@ import joblib
 import json
 import pandas as pd
 import numpy as np
+from io import StringIO
 
 # args:
 # dataframe - pandas dataframe with columns: 
@@ -65,31 +66,21 @@ def count_activity(activity_name, count):
         "start": 0,
     }
 
-# csv_path - path to csv with test data
-# user_id - user_id ?
-# id - id ?
+# csv_string - csv content
 # clf - "rf" | "dt" | "mlp" | "svm" | "cnn"
 # win_length, undersampling, win_step_freq - data2features args
 
-def clf2json(csv_path, user_id, id, clf, win_length, undersampling, win_step_freq):
-    response = {
-        "_id": {
-            "$oid": id
-        },
-        "classifications": [],
-        "data": "???",
-        "processed_at": {
-            "$date": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        },
-        "send_at": {
-            "$date": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        },
-        "user": {
-            "$oid": user_id
-        },
-    }
+def clf2json(csv_string, clf = "rf"):
+    # hardcoded values
+    win_length = 100
+    undersampling = 10
+    win_step_freq = 4
 
-    dataframe = pd.read_csv(csv_path, delimiter=',', header=0)
+    classifications = []
+
+    csvStringIO = StringIO(csv_string)
+
+    dataframe = pd.read_csv(csvStringIO, delimiter=',', header=0)
 
     X = data2features(dataframe, win_length, undersampling, win_step_freq)
 
@@ -105,24 +96,23 @@ def clf2json(csv_path, user_id, id, clf, win_length, undersampling, win_step_fre
     }
 
     for activity in activities:
-        response["classifications"].append(count_activity(activities.get(activity), np.count_nonzero(y_pred == activity)))
+        classifications.append(count_activity(activities.get(activity), np.count_nonzero(y_pred == activity)))
 
-    return json.dumps([response])
+    # return json.dumps(classifications)
+    return classifications
 
-import argparse
+# import argparse
 
-parser = argparse.ArgumentParser()
+# parser = argparse.ArgumentParser()
 
-parser.add_argument('--path')
-parser.add_argument('--user_id')
-parser.add_argument('--id')
-parser.add_argument('--clf')
-parser.add_argument('--wl')
-parser.add_argument('--us')
-parser.add_argument('--ws_freq')
+# parser.add_argument('--path')
+# parser.add_argument('--user_id')
+# parser.add_argument('--id')
+# parser.add_argument('--clf')
+# parser.add_argument('--wl')
+# parser.add_argument('--us')
+# parser.add_argument('--ws_freq')
 
-args = parser.parse_args()
+# args = parser.parse_args()
 
 # python clf2json.py --path='backend_data/squats/10/1.csv' --user_id=123 --id=321 --clf='rf' --wl=100 --us=10 --ws_freq=4
-
-print(clf2json(args.path, int(args.user_id), int(args.id), args.clf, int(args.wl), int(args.us), int(args.ws_freq)))
