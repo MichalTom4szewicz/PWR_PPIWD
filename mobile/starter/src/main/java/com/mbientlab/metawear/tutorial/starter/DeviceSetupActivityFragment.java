@@ -66,6 +66,7 @@ import com.mbientlab.metawear.module.Accelerometer;
 import com.mbientlab.metawear.module.Gyro;
 import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.MagnetometerBmm150;
+import com.mbientlab.metawear.tutorial.starter.charts.BarChartActivity;
 
 import bolts.Continuation;
 import bolts.Task;
@@ -608,6 +609,9 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     os.close();
                     Log.i("MainActivity", "File is created!");
                     sendFile(filePath);
+
+                    Intent intent = new Intent(v.getContext(), BarChartActivity.class);
+                    startActivity(intent);
                 } catch (IOException e) {
                     Log.i("MainActivity", "File NOT created ...!");
                     e.printStackTrace();
