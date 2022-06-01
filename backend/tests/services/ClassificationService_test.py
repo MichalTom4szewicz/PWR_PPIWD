@@ -37,11 +37,24 @@ class MeasurementServiceMock:
     def create_classification(self, start: float, end: float, activity_name: str, count: Optional[int] = None):
         return MeasurementClassification(start=start, end=end, activity_name=activity_name, count=count)
 
+    def create_classification_from_dict(self, c_dict: dict) -> MeasurementClassification:
+        return MeasurementClassification(start=c_dict['start'], end=c_dict['end'], activity_name=c_dict['activity_name'], count=c_dict['count'])
+
     def get_next_unprocessed(self) -> Optional[Measurement]:
         if self.last_measurement < len(self.measurements):
             unprocessed = self.measurements[self.last_measurement]
             self.last_measurement += 1
             return unprocessed
+
+
+class MLServiceMock:
+    def get_measurement_classifications(self, measurement: Measurement):
+        return [{
+            'activity_name': 'activity1',
+            'count': 0,
+            'start': 0,
+            'end': 10
+        }]
 
 
 class ClassificationServiceTest(unittest.TestCase):
@@ -55,8 +68,9 @@ class ClassificationServiceTest(unittest.TestCase):
 
     def test_does_process_measurements(self):
         mock_measurement_service = MeasurementServiceMock()
+        mock_ml_service = MLServiceMock()
         classification_service = ClassificationService(
-            measurement_service=mock_measurement_service)
+            measurement_service=mock_measurement_service, ml_service=mock_ml_service)
 
         classification_service.trigger_processing()
 
@@ -69,8 +83,9 @@ class ClassificationServiceTest(unittest.TestCase):
 
     def test_can_run_only_single_instance(self):
         mock_service = MeasurementServiceMock()
+        mock_ml_service = MLServiceMock()
         classification_service = ClassificationService(
-            measurement_service=mock_service)
+            measurement_service=mock_service, ml_service=mock_ml_service)
 
         ClassificationWorker.is_running = True
         self.assertFalse(classification_service.trigger_processing())

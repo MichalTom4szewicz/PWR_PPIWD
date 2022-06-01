@@ -20,6 +20,9 @@ class MeasurementService:
     def create_classification(self, start: float, end: float, activity_name: str, count: Optional[int] = None):
         return MeasurementClassification(start=start, end=end, activity_name=activity_name, count=count)
 
+    def create_classification_from_dict(self, c_dict: dict) -> MeasurementClassification:
+        return MeasurementClassification(start=c_dict['start'], end=c_dict['end'], activity_name=c_dict['activity_name'], count=c_dict['count'])
+
     def find_by_user(self, user: User) -> list[Measurement]:
         return Measurement.objects(user=user)
 
