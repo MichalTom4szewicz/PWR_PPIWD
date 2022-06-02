@@ -32,6 +32,7 @@ def data2features(dataframe, wl, us, ws_freq):
     win_step = win_length // ws_freq
 
     windowed_arr = []
+    time_stamps = []
     for win_end in range(win_length, len(dataframe), win_step):
         win_start = win_end - win_length
         activity = int(dataframe.iloc[win_start, 0])
@@ -51,19 +52,23 @@ def data2features(dataframe, wl, us, ws_freq):
 
         if is_consistent:
             windowed_arr.append(features)
+            if win_end+win_step <= len(dataframe):
+                time_stamps.append(dataframe.iloc[win_end]['time(sec)'])
+            else:
+                time_stamps.append(dataframe.iloc[-1]['time(sec)'])
        
     windowed_df = pd.DataFrame(windowed_arr)
     windowed_df.dropna(inplace=True)
     features = windowed_df.iloc[:, 1:]
     
-    return features
+    return features, time_stamps
 
-def count_activity(activity_name, count):
+def count_activity(activity_name, count, start=0, end=0):
     return {
         "activity_name": activity_name,
         "count": count,
-        "end": 0,
-        "start": 0,
+        "end": end,
+        "start": start,
     }
 
 # csv_string - csv content
@@ -82,7 +87,7 @@ def clf2json(csv_string, clf = "rf"):
 
     dataframe = pd.read_csv(csvStringIO, delimiter=',', header=0)
 
-    X = data2features(dataframe, win_length, undersampling, win_step_freq)
+    X, time_stamps = data2features(dataframe, win_length, undersampling, win_step_freq)
 
     model = joblib.load('./models/' + clf + '.sav')
 
@@ -96,7 +101,21 @@ def clf2json(csv_string, clf = "rf"):
     }
 
     for activity in activities:
-        classifications.append(count_activity(activities.get(activity), np.count_nonzero(y_pred == activity)))
+        try:
+            start_idx = y_pred.tolist().index(activity)
+            start = time_stamps[start_idx]
+            if activity + 1 < len(activities):
+                try:
+                    end = time_stamps[y_pred.tolist().index(activity+1, start_idx)]
+                except ValueError:
+                    end = time_stamps[-1]
+            else:
+                end = time_stamps[-1]
+        except ValueError:
+            start = 0
+            end = 0
+
+        classifications.append(count_activity(activities.get(activity), np.count_nonzero(y_pred == activity), start=start, end=end))
 
     # return json.dumps(classifications)
     return classifications
