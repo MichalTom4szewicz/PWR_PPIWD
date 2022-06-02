@@ -6,7 +6,7 @@ from server.models.User import User
 
 class MeasurementService:
 
-    def create_measurement(self, data: str, user: User):
+    def create_measurement(self, data: str, user: User) -> Measurement:
         measurement = Measurement(data=data, user=user)
 
         return measurement.save()
@@ -25,6 +25,9 @@ class MeasurementService:
 
     def find_processed_by_user(self, user: User) -> list[Measurement]:
         return Measurement.objects(user=user, processed_at__ne=None)
+
+    def find_by_id(self, id: str) -> Optional[Measurement]:
+        return Measurement.objects(id=id).first()
 
     def get_next_unprocessed(self) -> Optional[Measurement]:
         unprocessed = Measurement.objects(processed_at=None).limit(1)

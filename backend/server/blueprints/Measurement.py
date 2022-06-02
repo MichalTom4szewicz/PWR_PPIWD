@@ -23,11 +23,10 @@ def save_unprocessed_measurement(user: User):
         return res, 400
 
     csv_data = csv_file.read().decode("utf-8")
-    measurement_service.create_measurement(csv_data, user)
+    m = measurement_service.create_measurement(csv_data, user)
     classification_service.trigger_processing()
 
-    res = {'message': 'Unprocessed measurement has been saved'}
-    return res, 200
+    return jsonify(m.to_dict()), 200
 
 
 @Measurement.route('/measurements', methods=['GET'])
@@ -42,3 +41,13 @@ def get_all_user_measurements(user: User):
 def get_processed_user_measurements(user: User):
     user_measurements = measurement_service.find_processed_by_user(user)
     return jsonify([m.to_dict() for m in user_measurements]), 200
+
+
+@Measurement.route('/measurements/<id>', methods=['GET'])
+@jwt_service.token_required
+def get_measurement_by_id(user: User, id: str):
+    m = measurement_service.find_by_id(id)
+    if m.user == user:
+        return jsonify(m.to_dict()), 200
+    else:
+        return {"error": "Forbidden"}, 403

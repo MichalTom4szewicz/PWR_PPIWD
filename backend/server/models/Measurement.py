@@ -24,8 +24,9 @@ class Measurement(Document):
 
     def to_dict(self):
         return {
+            'id': str(self.id),
             'user': str(self.user.id),
             'classifications': self.classifications,
             'sent_at': str(self.sent_at),
-            'processed_at': str(self.processed_at)
+            'processed_at': str(self.processed_at) if self.processed_at else None
         }
