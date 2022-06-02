@@ -53,20 +53,25 @@ flowchart
 sequenceDiagram
   participant U as User
   participant HC as HTTPController
+  participant CS as ClassificationService
+  participant CW as ClassificationWorker
   participant ML as MLService
   participant m as MeasurementService
 
   U->>+HC: send measurement
   HC->>m: save unprocessed measurement
   par
-    HC->>+ML: trigger processing
+    HC->>+CS: trigger processing
   and
     HC->>U: measurement saved
   end
-  loop there are unprocessed measurements
-    ML->>m: fetch oldest unprocessed measurement
-    m-->>ML: return measurement
-    ML->>ML: classify measurement
-    ML->>-m: save classification
+  opt thread is not running yet
+    CS->>+CW: start thread
+    loop there are unprocessed measurements
+      CW->>m: fetch oldest unprocessed measurement
+      m-->>CW: return measurement
+      CW->>ML: classify measurement
+      CW->>-m: save classification
+    end
   end
 ```
