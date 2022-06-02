@@ -1,5 +1,6 @@
 import logging
 import threading
+from server.services.MLService import MLService
 
 from server.services.MeasurementService import MeasurementService
 
@@ -11,8 +12,9 @@ class ClassificationWorker(threading.Thread):
     lock = threading.Lock()
     is_running = False
 
-    def __init__(self, measurement_service: MeasurementService):
+    def __init__(self, measurement_service: MeasurementService, ml_service: MLService):
         self.measurement_service = measurement_service
+        self.ml_service = ml_service
 
     def start(self):
         logger.debug("Starting ClassificationWorker...")
@@ -22,8 +24,11 @@ class ClassificationWorker(threading.Thread):
 
         for unprocessed in self._get_next_unprocessed():
             logger.debug(f"Processing measurement: {unprocessed.sent_at}")
-            classifications = [self.measurement_service.create_classification(
-                start=0, end=10, activity_name="activity")]
+            classifications_raw = self.ml_service.get_measurement_classifications(
+                unprocessed)
+            classifications = [
+                self.measurement_service.create_classification_from_dict(c) for c in classifications_raw
+            ]
             self.measurement_service.classify_measurement(
                 unprocessed, classifications)
 

@@ -12,6 +12,10 @@ flask-restful = "*"
 uuid = "*"
 pyjwt = "*"
 datetime = "*"
+joblib = "*"
+pandas = "*"
+numpy = "*"
+sklearn = "*"
 
 [dev-packages]
 autopep8 = "*"

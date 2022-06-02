@@ -10,6 +10,7 @@ class ConfigKeys(str, Enum):
     SECRET_KEY = "SECRET_KEY"
     DB_NAME = "DB_NAME"
     DB_HOST = "DB_HOST"
+    ML_MODELS_DIR = "ML_MODELS_DIR"
 
 
 class Config:
@@ -19,6 +20,7 @@ class Config:
         self.training_dataset = TrainingDatasetConfig()
         self.auth_config = AuthConfig()
         self.db_config = DBConfig()
+        self.ml_config = MLConfig()
         if ConfigKeys.TRAINING_DATASET_DIR in cfg:
             self.training_dataset.dataset_dir = cfg["TRAINING_DATASET_DIR"]
         if ConfigKeys.TRAINING_BACKUP_DIR in cfg:
@@ -29,6 +31,8 @@ class Config:
             self.db_config.db = cfg[ConfigKeys.DB_NAME]
         if ConfigKeys.DB_HOST in cfg:
             self.db_config.host = cfg[ConfigKeys.DB_HOST]
+        if ConfigKeys.ML_MODELS_DIR in cfg:
+            self.ml_config.models_dir = cfg[ConfigKeys.ML_MODELS_DIR]
 
 
 @dataclass
@@ -49,6 +53,12 @@ class DBConfig:
 
     db: str = "ppiwd"
     host: str = "localhost"
+
+
+@dataclass
+class MLConfig:
+
+    models_dir: str = "./ml_models"
 
 
 # Default configuration, it loads configuration from .env file

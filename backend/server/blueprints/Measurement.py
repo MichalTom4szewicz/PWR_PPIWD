@@ -1,4 +1,5 @@
 from flask import Blueprint, Response, request, jsonify, send_file
+from server.services.MLService import MLService
 from server.services.ClassificationService import ClassificationService
 from server.models.User import User
 from server.services.MeasurementService import MeasurementService
@@ -7,7 +8,8 @@ from server.services.JwtService import JwtService
 Measurement = Blueprint('measurements', __name__)
 
 measurement_service = MeasurementService()
-classification_service = ClassificationService(measurement_service)
+ml_service = MLService()
+classification_service = ClassificationService(measurement_service, ml_service)
 jwt_service = JwtService()
 
 
