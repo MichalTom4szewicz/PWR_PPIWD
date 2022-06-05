@@ -87,7 +87,7 @@ def clf2json(csv_string, clf = "rf"):
 
     dataframe = pd.read_csv(csvStringIO, delimiter=',', header=0)
 
-    X = data2features(dataframe, win_length, undersampling, win_step_freq)
+    X, time_stamps = data2features(dataframe, win_length, undersampling, win_step_freq)
 
     model = joblib.load('./models/' + clf + '.sav')
 
