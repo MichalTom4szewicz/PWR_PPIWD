@@ -1,10 +1,10 @@
 from datetime import datetime
-import os
 import joblib
 import json
 import pandas as pd
 import numpy as np
 from io import StringIO
+import os
 from server.config import config
 
 # args:
@@ -36,6 +36,7 @@ def data2features(dataframe, wl, us, ws_freq):
     win_step = win_length // ws_freq
 
     windowed_arr = []
+    time_stamps = []
     for win_end in range(win_length, len(dataframe), win_step):
         win_start = win_end - win_length
         activity = int(dataframe.iloc[win_start, 0])
@@ -55,20 +56,24 @@ def data2features(dataframe, wl, us, ws_freq):
 
         if is_consistent:
             windowed_arr.append(features)
+            if win_end+win_step <= len(dataframe):
+                time_stamps.append(dataframe.iloc[win_end]['time(sec)'])
+            else:
+                time_stamps.append(dataframe.iloc[-1]['time(sec)'])
 
     windowed_df = pd.DataFrame(windowed_arr)
     windowed_df.dropna(inplace=True)
     features = windowed_df.iloc[:, 1:]
 
-    return features
+    return features, time_stamps
 
 
-def count_activity(activity_name, count):
+def get_activity_dict(activity_name, count, start=0, end=0):
     return {
         "activity_name": activity_name,
         "count": count,
-        "end": 0,
-        "start": 0,
+        "start": start,
+        "end": end,
     }
 
 # csv_string - csv content
@@ -88,7 +93,8 @@ def clf2json(csv_string, clf="rf"):
 
     dataframe = pd.read_csv(csvStringIO, delimiter=',', header=0)
 
-    X = data2features(dataframe, win_length, undersampling, win_step_freq)
+    X, time_stamps = data2features(
+        dataframe, win_length, undersampling, win_step_freq)
 
     model_path = os.path.join(config.ml_config.models_dir, f"{clf}.sav")
     model = joblib.load(model_path)
@@ -102,25 +108,18 @@ def clf2json(csv_string, clf="rf"):
         3: 'squats'
     }
 
-    for activity in activities:
-        classifications.append(count_activity(activities.get(
-            activity), np.count_nonzero(y_pred == activity)))
+    period = 0
 
-    # return json.dumps(classifications)
+    for (idx, value) in enumerate(y_pred):
+        if (idx == 0):
+            classifications.append(get_activity_dict(
+                activities.get(value), 1, start=idx, end=idx+1))
+        elif (y_pred[idx] == y_pred[idx-1]):
+            classifications[period]['count'] = classifications[period]['count'] + 1
+            classifications[period]['end'] = classifications[period]['end'] + 1
+        else:
+            classifications.append(get_activity_dict(
+                activities.get(value), 1, start=idx, end=idx+1))
+            period = period + 1
+
     return classifications
-
-# import argparse
-
-# parser = argparse.ArgumentParser()
-
-# parser.add_argument('--path')
-# parser.add_argument('--user_id')
-# parser.add_argument('--id')
-# parser.add_argument('--clf')
-# parser.add_argument('--wl')
-# parser.add_argument('--us')
-# parser.add_argument('--ws_freq')
-
-# args = parser.parse_args()
-
-# python clf2json.py --path='backend_data/squats/10/1.csv' --user_id=123 --id=321 --clf='rf' --wl=100 --us=10 --ws_freq=4
