@@ -13,10 +13,11 @@ class ClassificationWorker(threading.Thread):
     is_running = False
 
     def __init__(self, measurement_service: MeasurementService, ml_service: MLService):
+        threading.Thread.__init__(self)
         self.measurement_service = measurement_service
         self.ml_service = ml_service
 
-    def start(self):
+    def run(self):
         logger.debug("Starting ClassificationWorker...")
         ClassificationWorker.lock.acquire(blocking=True)
         ClassificationWorker.is_running = True
@@ -29,8 +30,10 @@ class ClassificationWorker(threading.Thread):
             classifications = [
                 self.measurement_service.create_classification_from_dict(c) for c in classifications_raw
             ]
-            self.measurement_service.classify_measurement(
+            measurement = self.measurement_service.classify_measurement(
                 unprocessed, classifications)
+            logger.debug(
+                f"Processed measurement {measurement.processed_at}")
 
         logger.debug("No more unprocessed measurements found")
         ClassificationWorker.lock.acquire(blocking=True)
