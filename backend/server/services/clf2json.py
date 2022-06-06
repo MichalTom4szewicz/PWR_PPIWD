@@ -24,16 +24,6 @@ logger = logging.getLogger("clf2json")
 
 
 def data2features(dataframe, wl, us, ws_freq):
-
-    activities = {
-        'boxing': 0,
-        'jumping_jacks': 1,
-        'inactivity': 2,
-        'squats': 3
-    }
-
-    dataframe['activity_type'] = dataframe['activity_type'].map(activities)
-
     win_length = wl
     undersampling = us
     win_step = win_length // ws_freq
@@ -42,20 +32,11 @@ def data2features(dataframe, wl, us, ws_freq):
     time_stamps = []
     for win_end in range(win_length, len(dataframe), win_step):
         win_start = win_end - win_length
-        activity = int(dataframe.iloc[win_start, 0])
-
-        features = [activity]
+        features = []
         is_consistent = True
+
         for j in range(win_start, win_end, undersampling):
-            if dataframe.iloc[j, 0] != activity:
-                is_consistent = False
-                break
-
-            if j + undersampling < win_end and abs(dataframe.iloc[j, 0] - dataframe.iloc[j + undersampling, 0]) > undersampling * 0.01 + 0.001:
-                is_consistent = False
-                break
-
-            features = features + list(dataframe.iloc[j, 3:12])
+            features = features + list(dataframe.iloc[j, 1:10])
 
         if is_consistent:
             windowed_arr.append(features)
@@ -66,9 +47,8 @@ def data2features(dataframe, wl, us, ws_freq):
 
     windowed_df = pd.DataFrame(windowed_arr)
     windowed_df.dropna(inplace=True)
-    features = windowed_df.iloc[:, 1:]
 
-    return features, time_stamps
+    return windowed_df, time_stamps
 
 
 def get_activity_dict(activity_name, count, start=0, end=0):
