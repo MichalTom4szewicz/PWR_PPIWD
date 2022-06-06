@@ -270,3 +270,6 @@ components:
         user:
           type: string
           description: ID of the user this measurement belongs to
+        invalid:
+          type: boolean
+          description: Present and "true" only if the measure couldn't be processed. It won't be processed again.
