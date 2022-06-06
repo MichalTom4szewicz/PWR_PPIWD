@@ -21,7 +21,7 @@ class MeasurementService:
         return MeasurementClassification(start=start, end=end, activity_name=activity_name, count=count)
 
     def create_classification_from_dict(self, c_dict: dict) -> MeasurementClassification:
-        return MeasurementClassification(start=c_dict['start'], end=c_dict['end'], activity_name=c_dict['activity_name'], count=c_dict['count'])
+        return MeasurementClassification(start=float(c_dict['start']), end=float(c_dict['end']), activity_name=c_dict['activity_name'], count=c_dict['count'])
 
     def find_by_user(self, user: User) -> list[Measurement]:
         return Measurement.objects(user=user)
@@ -33,5 +33,10 @@ class MeasurementService:
         return Measurement.objects(id=id).first()
 
     def get_next_unprocessed(self) -> Optional[Measurement]:
-        unprocessed = Measurement.objects(processed_at=None).limit(1)
+        unprocessed = Measurement.objects(
+            processed_at=None, invalid=False).limit(1)
         return unprocessed[0] if len(unprocessed) else None
+
+    def mark_as_invalid(self, measurement: Measurement) -> Measurement:
+        measurement.invalid = True
+        return measurement.save()

@@ -1,6 +1,6 @@
 import datetime
 
-from mongoengine.fields import StringField, DateTimeField, ReferenceField, IntField, EmbeddedDocumentListField, FloatField
+from mongoengine.fields import StringField, DateTimeField, ReferenceField, IntField, EmbeddedDocumentListField, FloatField, BooleanField
 from mongoengine import Document, EmbeddedDocument
 
 from server.models.User import User
@@ -21,12 +21,17 @@ class Measurement(Document):
     classifications = EmbeddedDocumentListField(MeasurementClassification)
     sent_at = DateTimeField(default=datetime.datetime.now)
     processed_at = DateTimeField(null=True)
+    invalid = BooleanField(default=False)
 
     def to_dict(self):
-        return {
+        representation = {
             'id': str(self.id),
             'user': str(self.user.id),
             'classifications': self.classifications,
             'sent_at': str(self.sent_at),
             'processed_at': str(self.processed_at) if self.processed_at else None
         }
+        if self.invalid:
+            representation['invalid'] = True
+
+        return representation

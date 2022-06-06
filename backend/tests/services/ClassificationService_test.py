@@ -74,6 +74,7 @@ class ClassificationServiceTest(unittest.TestCase):
 
         classification_service.trigger_processing()
 
+        time.sleep(0.25)
         while ClassificationWorker.is_running:
             time.sleep(0.25)
 

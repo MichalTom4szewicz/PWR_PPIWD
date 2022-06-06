@@ -75,3 +75,35 @@ sequenceDiagram
     end
   end
 ```
+
+# ERD
+```mermaid
+erDiagram
+  User {
+    string id
+    string firstName
+    string lastName
+    string email
+    string password
+    date created_at
+    date updated_at
+  }
+
+  Measurement {
+    string id
+    string user
+    date sent_at
+    date processed_at
+    string data
+  }
+
+  MeasurementClassification {
+    string activity_name
+    float start
+    float end
+    int count
+  }
+
+  User ||--o{ Measurement : has
+  Measurement ||--o{ MeasurementClassification : has
+```
