@@ -6,6 +6,9 @@ import numpy as np
 from io import StringIO
 import os
 from server.config import config
+import logging
+
+logger = logging.getLogger("clf2json")
 
 # args:
 # dataframe - pandas dataframe with columns:
@@ -97,6 +100,8 @@ def clf2json(csv_string, clf="rf"):
         dataframe, win_length, undersampling, win_step_freq)
 
     model_path = os.path.join(config.ml_config.models_dir, f"{clf}.sav")
+    model_path = os.path.realpath(model_path)
+    logger.debug(f"Loading model from {model_path}")
     model = joblib.load(model_path)
 
     y_pred = model.predict(X)

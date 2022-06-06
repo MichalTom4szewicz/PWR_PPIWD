@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+import logging
 import dotenv
 import os
 
@@ -11,9 +12,13 @@ class ConfigKeys(str, Enum):
     DB_NAME = "DB_NAME"
     DB_HOST = "DB_HOST"
     ML_MODELS_DIR = "ML_MODELS_DIR"
+    LOGGING_LEVEL = "LOGGING_LEVEL"
 
 
+@dataclass
 class Config:
+
+    logging_level = logging.INFO
 
     def __init__(self, config_file=".env") -> None:
         cfg = dotenv.dotenv_values(config_file)
@@ -33,6 +38,9 @@ class Config:
             self.db_config.host = cfg[ConfigKeys.DB_HOST]
         if ConfigKeys.ML_MODELS_DIR in cfg:
             self.ml_config.models_dir = cfg[ConfigKeys.ML_MODELS_DIR]
+        if ConfigKeys.LOGGING_LEVEL in cfg:
+            self.logging_level = logging.getLevelName(
+                cfg[ConfigKeys.LOGGING_LEVEL])
 
 
 @dataclass

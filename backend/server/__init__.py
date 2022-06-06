@@ -1,3 +1,4 @@
+import logging
 import os
 
 from flask import Flask
@@ -14,6 +15,7 @@ from server.config import config
 
 
 def create_app():
+    logging.basicConfig(level=config.logging_level)
     app = Flask(__name__, instance_relative_config=True)
 
     CORS(app)
