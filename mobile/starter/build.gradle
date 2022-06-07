@@ -68,4 +68,9 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibVersion"
     implementation "com.android.support:design:$rootProject.ext.supportLibVersion"
     implementation "com.opencsv:opencsv:4.0"
-    implementation "com.androidplot:androidplot-core:1.5.9"}
+    implementation "com.androidplot:androidplot-core:1.5.9"
+    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.github.blackfizz:eazegraph:1.2.5l@aar'
+    implementation 'com.nineoldandroids:library:2.4.0'
+//    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    }

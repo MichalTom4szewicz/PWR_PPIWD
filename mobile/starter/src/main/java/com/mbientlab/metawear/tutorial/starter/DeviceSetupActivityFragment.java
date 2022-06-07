@@ -49,9 +49,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Chronometer;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 
+import com.google.gson.Gson;
 import com.mbientlab.metawear.Data;
 import com.mbientlab.metawear.MetaWearBoard;
 import com.mbientlab.metawear.Route;
@@ -67,22 +66,25 @@ import com.mbientlab.metawear.module.Gyro;
 import com.mbientlab.metawear.module.Led;
 import com.mbientlab.metawear.module.MagnetometerBmm150;
 import com.mbientlab.metawear.tutorial.starter.charts.BarChartActivity;
+import com.mbientlab.metawear.tutorial.starter.charts.PieChartActivity;
 
 import bolts.Continuation;
 import bolts.Task;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import java.lang.Math;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -90,9 +92,11 @@ import java.util.UUID;
  * A placeholder fragment containing a simple view.
  */
 public class DeviceSetupActivityFragment extends Fragment implements ServiceConnection {
+
     public interface FragmentSettings {
         BluetoothDevice getBtDevice();
     }
+
 
     private MetaWearBoard metawear = null;
     private FragmentSettings settings;
@@ -133,11 +137,11 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     Integer initial_accel_loop = 1;
     Integer initial_gyro_loop = 1;
 
-    String activityType="";
-    Integer repetitions=null;
 
-    String csv_entry = "activity_type" + "," +
-                        "repetitions" + "," +
+//    String activityType="none";
+//    Integer repetitions=null;
+
+    String csv_entry =
                         "time(sec)" + "," +
                         "gyroscope_x(deg/sec)" + "," +
                         "gyroscope_y(deg/sec)" + "," +
@@ -150,6 +154,7 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                         "magnetometer_z(T)" + "\n";
 
     long timeWhenPaused = 0;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -184,177 +189,8 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Switch jumping_jacks_switch = (Switch) view.findViewById(R.id.jumpingJacksSwitch);
-        Switch squats_switch = (Switch) view.findViewById(R.id.squatsSwitch);
-        Switch running_switch = (Switch) view.findViewById(R.id.runningSwitch);
-        Switch boxing_switch = (Switch) view.findViewById(R.id.boxingSwitch);
-
-        Switch repeat5_switch = (Switch) view.findViewById(R.id.repeat5Switch);
-        Switch repeat10_switch = (Switch) view.findViewById(R.id.repeat10Switch);
-        Switch repeat15_switch = (Switch) view.findViewById(R.id.repeat15Switch);
-        Switch repeat20_switch = (Switch) view.findViewById(R.id.repeat20Switch);
-
         Chronometer simpleChronometer = (Chronometer) view.findViewById(R.id.simpleChronometer);
 
-        jumping_jacks_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Switch State=", "jumping jacks switch " + isChecked);
-                if (isChecked) {
-                    squats_switch.setChecked(false);
-                    running_switch.setChecked(false);
-                    boxing_switch.setChecked(false);
-                    activityType="jumping_jacks";
-                    if (repetitions != null){
-                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    activityType="";
-                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
-        squats_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Switch State=", "squats switch " + isChecked);
-                if (isChecked) {
-                    jumping_jacks_switch.setChecked(false);
-                    running_switch.setChecked(false);
-                    boxing_switch.setChecked(false);
-                    activityType="squats";
-                    if (repetitions != null){
-                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    activityType="";
-                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
-        running_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Switch State=", "running switch" + isChecked);
-                if (isChecked) {
-                    jumping_jacks_switch.setChecked(false);
-                    squats_switch.setChecked(false);
-                    boxing_switch.setChecked(false);
-                    activityType="running";
-                    if (repetitions != null){
-                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    activityType="";
-                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
-        boxing_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Switch State=", "boxing switch" + isChecked);
-                if (isChecked) {
-                    jumping_jacks_switch.setChecked(false);
-                    squats_switch.setChecked(false);
-                    running_switch.setChecked(false);
-                    activityType="boxing";
-                    if (repetitions != null){
-                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    activityType="";
-                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
-        repeat5_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Switch State=", "jumping jacks switch " + isChecked);
-                if (isChecked) {
-                    repeat10_switch.setChecked(false);
-                    repeat15_switch.setChecked(false);
-                    repeat20_switch.setChecked(false);
-                    repetitions=5;
-                    if (activityType != null) {
-                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    repetitions=null;
-                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
-        repeat10_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Switch State=", "jumping jacks switch " + isChecked);
-                if (isChecked) {
-                    repeat5_switch.setChecked(false);
-                    repeat15_switch.setChecked(false);
-                    repeat20_switch.setChecked(false);
-                    repetitions=10;
-                    if (activityType != "") {
-                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    repetitions=null;
-                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
-        repeat15_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Switch State=", "jumping jacks switch " + isChecked);
-                if (isChecked) {
-                    repeat5_switch.setChecked(false);
-                    repeat10_switch.setChecked(false);
-                    repeat20_switch.setChecked(false);
-                    repetitions=15;
-                    if (activityType != "") {
-                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    repetitions=null;
-                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
-        repeat20_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.i("Switch State=", "jumping jacks switch " + isChecked);
-                if (isChecked) {
-                    repeat5_switch.setChecked(false);
-                    repeat10_switch.setChecked(false);
-                    repeat15_switch.setChecked(false);
-                    repetitions=20;
-                    if (activityType != "") {
-                        view.findViewById(R.id.geo_start).setVisibility(View.VISIBLE);
-                        view.findViewById(R.id.geo_stop).setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    repetitions=null;
-                    view.findViewById(R.id.geo_start).setVisibility(View.INVISIBLE);
-                    view.findViewById(R.id.geo_stop).setVisibility(View.INVISIBLE);
-                }
-            }
-        });
 
         view.findViewById(R.id.geo_start).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -383,17 +219,6 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
                 view.findViewById(R.id.timeText).setVisibility(View.VISIBLE);
                 view.findViewById(R.id.simpleChronometer).setVisibility(View.VISIBLE);
-
-                jumping_jacks_switch.setClickable(false);
-                squats_switch.setClickable(false);
-                running_switch.setClickable(false);
-                boxing_switch.setClickable(false);
-
-                repeat5_switch.setClickable(false);
-                repeat10_switch.setClickable(false);
-                repeat15_switch.setClickable(false);
-                repeat20_switch.setClickable(false);
-
 
                 simpleChronometer.start(); // start a chronometer
 
@@ -483,8 +308,6 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
 
                                 if(initial_accel_loop == 0 && initial_gyro_loop == 0){
                                     csv_entry = csv_entry +
-                                            activityType + "," +
-                                            repetitions.toString() + "," +
                                             time.now().toString() + "," +
                                             gyro_string_x + "," +
                                             gyro_string_y + "," +
@@ -578,16 +401,6 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                         .commit();
                 ledModule.play();
 
-                jumping_jacks_switch.setClickable(true);
-                squats_switch.setClickable(true);
-                running_switch.setClickable(true);
-                boxing_switch.setClickable(true);
-
-                repeat5_switch.setClickable(true);
-                repeat10_switch.setClickable(true);
-                repeat15_switch.setClickable(true);
-                repeat20_switch.setClickable(true);
-
                 view.findViewById(R.id.geo_start).setClickable(true);
 
                 String baseDir = "/storage/emulated/0/Download";
@@ -609,16 +422,19 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
                     os.close();
                     Log.i("MainActivity", "File is created!");
                     sendFile(filePath);
+                    new getTrainingSummary().execute();
 
-                    Intent intent = new Intent(v.getContext(), BarChartActivity.class);
-                    startActivity(intent);
+//                    Intent intent = new Intent(v.getContext(), BarChartActivity.class);
+//                    Intent intent = new Intent(v.getContext(), PieChartActivity.class);
+//                    startActivity(intent);
+
                 } catch (IOException e) {
                     Log.i("MainActivity", "File NOT created ...!");
                     e.printStackTrace();
                 }
 
-                csv_entry = "activity_type" + "," +
-                        "repetitions" + "," +
+
+                csv_entry =
                         "time(sec)" + "," +
                         "gyroscope_x(deg/sec)" + "," +
                         "gyroscope_y(deg/sec)" + "," +
@@ -683,106 +499,251 @@ public class DeviceSetupActivityFragment extends Fragment implements ServiceConn
             Log.i("MetaWear", "File not found");
             return;
         }
-        FileUploadParams params = new FileUploadParams(F,activityType, repetitions);
+        FileUploadParams params = new FileUploadParams(F);
         new FileUpload().execute(params);
     }
 
     public void reconnected() { }
-}
-class FileUpload extends AsyncTask<FileUploadParams, Void, Void> {
+
+    class FileUpload extends AsyncTask <FileUploadParams, Void, Void> {
 
 
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        Log.i("MetaWear", "Starting Background Task");
-    }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.i("MetaWear", "Starting Background Task");
+        }
 
 
-    @Override
-    protected Void doInBackground(FileUploadParams... fileUploadParams) {
-        String path = "http://ppiwd.arturb.xyz:5000/training/measurement/" + fileUploadParams[0].activityType +"?count="+fileUploadParams[0].repetitions;
-        File file = fileUploadParams[0].file;
+        @Override
+        protected Void doInBackground(FileUploadParams... fileUploadParams) {
+            String path = "http://ppiwd.arturb.xyz:5000/measurements";
+            File file = fileUploadParams[0].file;
 
-        String parameterName = "measurements";
-        String attachmentFileName = file.getName();
+            String parameterName = "measurements";
+            String attachmentFileName = file.getName();
 
-        String lineEnd = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
+            String lineEnd = "\r\n";
+            String twoHyphens = "--";
+            String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
 
-        int bytesRead, bytesAvailable, bufferSize;
-        byte[] buffer;
-        int maxBufferSize = 1 * 1024 * 1024;
+            int bytesRead, bytesAvailable, bufferSize;
+            byte[] buffer;
+            int maxBufferSize = 1 * 1024 * 1024;
 
-        HttpURLConnection connection = null;
-        DataOutputStream outputStream = null;
+            HttpURLConnection connection = null;
+            DataOutputStream outputStream = null;
 
-        String[] q = attachmentFileName.split("/");
-        int idx = q.length - 1;
-        String fileMimeType = "text/csv";
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
+            String[] q = attachmentFileName.split("/");
+            int idx = q.length - 1;
+            String fileMimeType = "text/csv";
+            try {
+                FileInputStream fileInputStream = new FileInputStream(file);
 
-            URL url = new URL(path);
+                URL url = new URL(path);
 
-            connection = (HttpURLConnection) url.openConnection();
+                connection = (HttpURLConnection) url.openConnection();
 
-            connection.setUseCaches(false);
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
+                connection.setUseCaches(false);
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
 
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Connection", "Keep-Alive");
-            connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
-            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Connection", "Keep-Alive");
+                connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
+                connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+                connection.setRequestProperty("Authorization", "Bearer " + ((MyApplication) getActivity().getApplication()).getToken());
 
-            outputStream = new DataOutputStream(connection.getOutputStream());
-            outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-            outputStream.writeBytes("Content-Disposition: form-data; name=\"" + parameterName + "\"; filename=\"" + q[idx] + "\"" + lineEnd);
-            outputStream.writeBytes("Content-Type: " + fileMimeType + lineEnd);
-            outputStream.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
+                outputStream = new DataOutputStream(connection.getOutputStream());
+                outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+                outputStream.writeBytes("Content-Disposition: form-data; name=\"" + parameterName + "\"; filename=\"" + q[idx] + "\"" + lineEnd);
+                outputStream.writeBytes("Content-Type: " + fileMimeType + lineEnd);
+                outputStream.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
 
-            outputStream.writeBytes(lineEnd);
+                outputStream.writeBytes(lineEnd);
 
-            bytesAvailable = fileInputStream.available();
-            bufferSize = Math.min(bytesAvailable, maxBufferSize);
-            buffer = new byte[bufferSize];
-
-            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-            while (bytesRead > 0) {
-                outputStream.write(buffer, 0, bufferSize);
                 bytesAvailable = fileInputStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                buffer = new byte[bufferSize];
+
                 bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                while (bytesRead > 0) {
+                    outputStream.write(buffer, 0, bufferSize);
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                }
+
+                outputStream.writeBytes(lineEnd);
+                outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                if (200 != connection.getResponseCode()) {
+                    Log.i("Error", "Failed to upload code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
+                }
+
+                Log.i("Server response", "Code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line+"\n");
+                }
+                br.close();
+
+                OneTrainingSummaryId trainingId = new Gson().fromJson(sb.toString(), OneTrainingSummaryId.class);
+//                Log.i("IDDDDDD: ", trainingId.id);
+                ((MyApplication) getActivity().getApplication()).setTrainingId(trainingId.id);
+
+                fileInputStream.close();
+                outputStream.flush();
+                outputStream.close();
+
+
+            } catch (Exception e) {
+                Log.i("error", e.toString());
             }
-
-            outputStream.writeBytes(lineEnd);
-            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-            if (200 != connection.getResponseCode()) {
-                Log.i("Error", "Failed to upload code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
-            }
-
-            Log.i("Server response", "Code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
-
-            fileInputStream.close();
-            outputStream.flush();
-            outputStream.close();
-        } catch (Exception e) {
-            Log.i("error", e.toString());
+            return null;
         }
-        return null;
     }
+
+    class getTrainingSummary extends AsyncTask <FileUploadParams, Void, Boolean> {
+
+            String path = "http://ppiwd.arturb.xyz:5000/measurements/";
+
+            HttpURLConnection connection = null;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            ((MyApplication) getActivity().getApplication()).setJumpingJacksCounter(0);
+            ((MyApplication) getActivity().getApplication()).setSquatsCounter(0);
+            ((MyApplication) getActivity().getApplication()).setRunningCounter(0);
+            ((MyApplication) getActivity().getApplication()).setBoxingCounter(0);
+        }
+
+
+        @Override
+        protected Boolean doInBackground(FileUploadParams... fileUploadParams) {
+
+            try {
+                URL url = new URL(path + ((MyApplication) getActivity().getApplication()).getTrainingId());
+
+                connection = (HttpURLConnection) url.openConnection();
+
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Authorization", "Bearer " + ((MyApplication) getActivity().getApplication()).getToken());
+
+                if (200 != connection.getResponseCode()) {
+                    Log.i("Error", "Failed to get training summary:" + connection.getResponseCode() + " " + connection.getResponseMessage());
+                }
+
+                Log.i("Get Summary Server response", "Code:" + connection.getResponseCode() + " " + connection.getResponseMessage());
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line+"\n");
+                }
+                br.close();
+                Log.i("Whole Training Summary: ", sb.toString());
+                Training training = new Gson().fromJson(sb.toString(), Training.class);
+
+                for (TrainingParams trainingParams  : training.classifications) {
+                    if (trainingParams.getActivity_name().equalsIgnoreCase("jumping_jacks")) {
+                        Integer jjNow = ((MyApplication) getActivity().getApplication()).getJumpingJacksCounter();
+                        ((MyApplication) getActivity().getApplication()).setJumpingJacksCounter( jjNow + trainingParams.getCount());
+                    }
+                    if (trainingParams.getActivity_name().equalsIgnoreCase("squats")) {
+                        Integer squatsNow = ((MyApplication) getActivity().getApplication()).getSquatsCounter();
+                        ((MyApplication) getActivity().getApplication()).setSquatsCounter( squatsNow + trainingParams.getCount());
+                    }
+                    if (trainingParams.getActivity_name().equalsIgnoreCase("running")) {
+                        Integer runningNow = ((MyApplication) getActivity().getApplication()).getRunningCounter();
+                        ((MyApplication) getActivity().getApplication()).setRunningCounter( runningNow + trainingParams.getCount());
+                    }
+                    if (trainingParams.getActivity_name().equalsIgnoreCase("boxing")) {
+                        Integer boxingNow = ((MyApplication) getActivity().getApplication()).getBoxingCounter();
+                        ((MyApplication) getActivity().getApplication()).setBoxingCounter( boxingNow + trainingParams.getCount());
+                    }
+                    Log.i("JUMPING JACKS COUNT: ", ((MyApplication) getActivity().getApplication()).getJumpingJacksCounter().toString());
+                    Log.i("SQUATS COUNT: ", ((MyApplication) getActivity().getApplication()).getSquatsCounter().toString());
+                }
+
+
+            } catch (Exception e) {
+                Log.i("error", e.toString());
+            }
+            return true;
+        }
+
+
+        @Override
+        protected void onPostExecute(Boolean isReady) {
+            try {
+                if(isReady) {
+                    Intent intent = new Intent(getActivity().getApplicationContext(), PieChartActivity.class);
+                    startActivity(intent);
+                }
+            } catch (Exception e) {
+                Log.i("error", e.toString());
+            }
+            return;
+        }
+
+    }
+
 }
+
 class FileUploadParams {
     File file;
-    String activityType;
-    Integer repetitions;
 
-    FileUploadParams(File file, String activityType, Integer repetitions) {
+    FileUploadParams(File file) {
         this.file = file;
-        this.activityType = activityType;
-        this.repetitions = repetitions;
     }
+}
+
+class OneTrainingSummaryId {
+    String id;
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+}
+
+class TrainingParams {
+    String activity_name;
+    Integer count;
+    Double end;
+    Double start;
+
+    public String getActivity_name() { return activity_name; }
+    public void setActivity_name(String activity_name) { this.activity_name = activity_name; }
+    public Integer getCount() { return count; }
+    public void setCount(Integer count) { this.count = count; }
+    public Double getEnd() { return end; }
+    public void setEnd(Double end) { this.end = end; }
+    public Double getStart() { return start; }
+    public void setStart(Double start) { this.start = start; }
+}
+
+class Training {
+    List<TrainingParams> classifications = null;
+
+    String id;
+    String processed_at;
+    String sent_at;
+    String user;
+
+    public List<TrainingParams> getClassifications() { return classifications; }
+    public void setClassifications(List<TrainingParams> classifications) { this.classifications = classifications; }
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getProcessed_at() { return processed_at; }
+    public void setProcessed_at(String processed_at) { this.processed_at = processed_at; }
+    public String getSent_at() { return sent_at; }
+    public void setSent_at(String sent_att) { this.sent_at = sent_at; }
+    public String getUser() { return user; }
+    public void setUser(String user) { this.user = user; }
 }

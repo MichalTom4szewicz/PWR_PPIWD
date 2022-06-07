@@ -13,12 +13,15 @@ package com.mbientlab.metawear.tutorial.starter;
         import android.widget.EditText;
         import android.widget.Toast;
 
+        import com.google.gson.Gson;
+
         import org.json.JSONException;
         import org.json.JSONObject;
 
+        import java.io.BufferedReader;
         import java.io.DataOutputStream;
         import java.io.IOException;
-        import java.lang.ref.WeakReference;
+        import java.io.InputStreamReader;
         import java.net.HttpURLConnection;
         import java.net.URL;
 
@@ -85,62 +88,78 @@ public class LoginActivity2 extends AppCompatActivity {
         Toast t = Toast.makeText(this, toastText, Toast.LENGTH_SHORT);
         t.show();
     }
-}
 
-class LoginUser extends AsyncTask<LoginParams, Void, String> {
-   Context contextRef;
-
-    public LoginUser(Context context) {
-        contextRef = context;
+    public void setUserToken(String token){
+        ((MyApplication) this.getApplication()).setToken(token);
     }
 
-    @Override
-    protected String doInBackground(LoginParams... loginParams) {
-        String path = "http://ppiwd.arturb.xyz:5000/auth/login" ;
+    class LoginUser extends AsyncTask<LoginParams, Void, String> {
+        Context contextRef;
 
-        HttpURLConnection connection = null;
+        public LoginUser(Context context) {
+            contextRef = context;
+        }
 
-        try {
-            URL url = new URL(path);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Connection", "Keep-Alive");
-            connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
-            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        @Override
+        protected String doInBackground(LoginParams... loginParams) {
+            String path = "http://ppiwd.arturb.xyz:5000/auth/login" ;
 
-            JSONObject cred = new JSONObject();
-            cred.put("email", loginParams[0].email);
-            cred.put("password", loginParams[0].password);
+            HttpURLConnection connection = null;
+
+            try {
+                URL url = new URL(path);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Connection", "Keep-Alive");
+                connection.setRequestProperty("User-Agent", "Android Multipart HTTP Client 1.0");
+                connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+                JSONObject cred = new JSONObject();
+                cred.put("email", loginParams[0].email);
+                cred.put("password", loginParams[0].password);
 //            cred.put("email", "asd@email.com");
 //            cred.put("password", "Haslo1234");
 
-            DataOutputStream localDataOutputStream = new DataOutputStream(connection.getOutputStream());
-            localDataOutputStream.writeBytes(cred.toString());
-            localDataOutputStream.flush();
-            localDataOutputStream.close();
+                DataOutputStream localDataOutputStream = new DataOutputStream(connection.getOutputStream());
+                localDataOutputStream.writeBytes(cred.toString());
+                localDataOutputStream.flush();
+                localDataOutputStream.close();
 
-            Log.i("Registration status", String.valueOf(connection.getResponseCode()));
-            Log.i("Registration message", connection.getRequestMethod());
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line+"\n");
+                }
+                br.close();
+
+                Token token = new Gson().fromJson(sb.toString(), Token.class);
+
+                setUserToken(token.token);
+
+                Log.i("Registration status", String.valueOf(connection.getResponseCode()));
+                Log.i("Registration message", connection.getRequestMethod());
 //            if (connection.getResponseMessage())
-            if (connection.getResponseMessage().equals("OK")) {
-                return "OK";
-            } else {
-                return "Exception Caught";
+                if (connection.getResponseMessage().equals("OK")) {
+                    return "OK";
+                } else {
+                    return "Exception Caught";
+                }
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
             }
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
+            return "";
         }
-        return "";
-    }
 
 
-    protected void onPostExecute(String result) {
-        if (result.equalsIgnoreCase("Exception Caught")){
-            Toast t = Toast.makeText(contextRef, "Wrong email or password!", Toast.LENGTH_SHORT);
-            t.show();
-        } else {
-            Intent i = new Intent(contextRef, MainActivity.class);
-            contextRef.startActivity(i);
+        protected void onPostExecute(String result) {
+            if (result.equalsIgnoreCase("Exception Caught")){
+                Toast t = Toast.makeText(contextRef, "Wrong email or password!", Toast.LENGTH_SHORT);
+                t.show();
+            } else {
+                Intent i = new Intent(contextRef, MainActivity.class);
+                contextRef.startActivity(i);
+            }
         }
     }
 
@@ -154,5 +173,16 @@ class LoginParams {
     LoginParams(EditText email,EditText password) {
         this.email = email.getText().toString();
         this.password = password.getText().toString();
+    }
+}
+
+class Token {
+    String token;
+
+    public String getToken() {
+        return token;
+    }
+    public void setToken(String token) {
+        this.token = token;
     }
 }
