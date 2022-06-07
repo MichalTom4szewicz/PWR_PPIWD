@@ -40,7 +40,6 @@
         android:id="@+id/registrationText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="62dp"
         android:text="Registration"
         android:textFontWeight="20"
         android:textSize="24pt"
